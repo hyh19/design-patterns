@@ -1,5 +1,147 @@
 # 设计模式：PHP 实现
 
+## 抽象工厂模式
+
+```php
+<?php
+
+interface AbstractFactory
+{
+    /**
+     * @return AbstractProductA
+     */
+    public function createProductA(): AbstractProductA;
+
+    /**
+     * @return AbstractProductB
+     */
+    public function createProductB(): AbstractProductB;
+}
+
+class ConcreteFactory1 implements AbstractFactory
+{
+    /**
+     * @return AbstractProductA
+     */
+    public function createProductA(): AbstractProductA
+    {
+        return new ConcreteProductA1();
+    }
+
+    /**
+     * @return AbstractProductB
+     */
+    public function createProductB(): AbstractProductB
+    {
+        return new ConcreteProductB1();
+    }
+}
+
+class ConcreteFactory2 implements AbstractFactory
+{
+    /**
+     * @return AbstractProductA
+     */
+    public function createProductA(): AbstractProductA
+    {
+        return new ConcreteProductA2();
+    }
+
+    /**
+     * @return AbstractProductB
+     */
+    public function createProductB(): AbstractProductB
+    {
+        return new ConcreteProductB2();
+    }
+}
+
+interface AbstractProductA
+{
+    /**
+     * @return string
+     */
+    public function usefulFunctionA(): string;
+}
+
+class ConcreteProductA1 implements AbstractProductA
+{
+    /**
+     * @return string
+     */
+    public function usefulFunctionA(): string
+    {
+        return "A1";
+    }
+}
+
+class ConcreteProductA2 implements AbstractProductA
+{
+    /**
+     * @return string
+     */
+    public function usefulFunctionA(): string
+    {
+        return "A2";
+    }
+}
+
+interface AbstractProductB
+{
+    /**
+     * @return string
+     */
+    public function usefulFunctionB(): string;
+
+    /**
+     * @param AbstractProductA $collaborator
+     * @return string
+     */
+    public function anotherUsefulFunctionB(AbstractProductA $collaborator): string;
+}
+
+class ConcreteProductB1 implements AbstractProductB
+{
+    /**
+     * @return string
+     */
+    public function usefulFunctionB(): string
+    {
+        return "B1";
+    }
+
+    /**
+     * @param AbstractProductA $collaborator
+     * @return string
+     */
+    public function anotherUsefulFunctionB(AbstractProductA $collaborator): string
+    {
+        return "B1" . $collaborator->usefulFunctionA();
+    }
+}
+
+class ConcreteProductB2 implements AbstractProductB
+{
+    /**
+     * @return string
+     */
+    public function usefulFunctionB(): string
+    {
+        return "B2";
+    }
+
+    /**
+     * @param AbstractProductA $collaborator
+     * @return string
+     */
+    public function anotherUsefulFunctionB(AbstractProductA $collaborator): string
+    {
+        return "B2" . $collaborator->usefulFunctionA();
+    }
+}
+
+```
+
 ## 生成器模式
 
 ```php
@@ -23,12 +165,12 @@ interface Builder
     public function producePartC(): void;
 }
 
-class ConcreteBuilder1 implements Builder
+class ConcreteBuilder implements Builder
 {
     /**
-     * @var Product1
+     * @var Product
      */
-    private Product1 $product;
+    private Product $product;
     
     public function __construct()
     {
@@ -60,13 +202,12 @@ class ConcreteBuilder1 implements Builder
     }
 
     /**
-     * @return Product1
+     * @return Product
      */
-    public function getProduct(): Product1
+    public function getResult(): Product
     {
         $result = $this->product;
         $this->reset();
-
         return $result;
     }
 
@@ -75,11 +216,11 @@ class ConcreteBuilder1 implements Builder
      */
     private function reset(): void
     {
-        $this->product = new Product1();
+        $this->product = new Product();
     }
 }
 
-class Product1
+class Product
 {
     /**
      * @var string[]
