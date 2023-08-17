@@ -1,4 +1,9 @@
+<!-- omit in toc -->
 # 设计模式：Swift 实现
+
+- [抽象工厂模式](#抽象工厂模式)
+- [生成器模式](#生成器模式)
+- [工厂方法模式](#工厂方法模式)
 
 ## 抽象工厂模式
 
@@ -143,6 +148,58 @@ class Director {
         builder.producePartA()
         builder.producePartB()
         builder.producePartC()
+    }
+}
+```
+
+## 工厂方法模式
+
+```swift
+protocol Creator {
+
+    func factoryMethod() -> Product
+
+    func someOperation() -> String
+}
+
+extension Creator {
+
+    func someOperation() -> String {
+        let product = factoryMethod()
+        return product.operation()
+    }
+}
+
+class ConcreteCreator1: Creator {
+
+    func factoryMethod() -> Product {
+        return ConcreteProduct1()
+    }
+}
+
+class ConcreteCreator2: Creator {
+
+    func factoryMethod() -> Product {
+        return ConcreteProduct2()
+    }
+}
+
+protocol Product {
+
+    func operation() -> String
+}
+
+class ConcreteProduct1: Product {
+
+    func operation() -> String {
+        return "ConcreteProduct1"
+    }
+}
+
+class ConcreteProduct2: Product {
+
+    func operation() -> String {
+        return "ConcreteProduct2"
     }
 }
 ```

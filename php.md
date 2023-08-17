@@ -1,4 +1,9 @@
+<!-- omit in toc -->
 # 设计模式：PHP 实现
+
+- [抽象工厂模式](#抽象工厂模式)
+- [生成器模式](#生成器模式)
+- [工厂方法模式](#工厂方法模式)
 
 ## 抽象工厂模式
 
@@ -257,6 +262,81 @@ class Director
         $builder->producePartA();
         $builder->producePartB();
         $builder->producePartC();
+    }
+}
+```
+
+## 工厂方法模式
+
+```php
+<?php
+
+abstract class Creator
+{
+    /**
+     * @return Product
+     */
+    abstract public function factoryMethod(): Product;
+
+    /**
+     * @return string
+     */
+    public function someOperation(): string
+    {
+        $product = $this->factoryMethod();
+        return $product->operation();
+    }
+}
+
+class ConcreteCreator1 extends Creator
+{
+    /**
+     * @return Product
+     */
+    public function factoryMethod(): Product
+    {
+        return new ConcreteProduct1();
+    }
+}
+
+class ConcreteCreator2 extends Creator
+{
+    /**
+     * @return Product
+     */
+    public function factoryMethod(): Product
+    {
+        return new ConcreteProduct2();
+    }
+}
+
+interface Product
+{
+    /**
+     * @return string
+     */
+    public function operation(): string;
+}
+
+class ConcreteProduct1 implements Product
+{
+    /**
+     * @return string
+     */
+    public function operation(): string
+    {
+        return "ConcreteProduct1";
+    }
+}
+
+class ConcreteProduct2 implements Product
+{
+    /**
+     * @return string
+     */
+    public function operation(): string
+    {
+        return "ConcreteProduct2";
     }
 }
 ```

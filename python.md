@@ -139,3 +139,46 @@ class Director:
         builder.produce_part_b()
         builder.produce_part_c()
 ```
+
+## 工厂方法模式
+
+```py
+from __future__ import annotations
+from abc import ABC, abstractmethod
+
+
+class Creator(ABC):
+    @abstractmethod
+    def factory_method(self) -> Product:
+        pass
+
+    def some_operation(self) -> str:
+        product = self.factory_method()
+        return product.operation()
+
+
+class ConcreteCreator1(Creator):
+    def factory_method(self) -> Product:
+        return ConcreteProduct1()
+
+
+class ConcreteCreator2(Creator):
+    def factory_method(self) -> Product:
+        return ConcreteProduct2()
+
+
+class Product(ABC):
+    @abstractmethod
+    def operation(self) -> str:
+        pass
+
+
+class ConcreteProduct1(Product):
+    def operation(self) -> str:
+        return "ConcreteProduct1"
+
+
+class ConcreteProduct2(Product):
+    def operation(self) -> str:
+        return "ConcreteProduct2"
+```
