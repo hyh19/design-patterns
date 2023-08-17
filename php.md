@@ -348,6 +348,10 @@ class ConcreteProduct2 implements Product
 
 class Target
 {
+    public function __construct()
+    {
+    }
+
     /**
      * @return string
      */
@@ -380,6 +384,7 @@ class Adapter extends Target
      */
     public function __construct(Adaptee $adaptee)
     {
+        parent::__construct();
         $this->adaptee = $adaptee;
     }
 
