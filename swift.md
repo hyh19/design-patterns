@@ -4,6 +4,7 @@
 - [抽象工厂模式](#抽象工厂模式)
 - [生成器模式](#生成器模式)
 - [工厂方法模式](#工厂方法模式)
+- [适配器模式](#适配器模式)
 
 ## 抽象工厂模式
 
@@ -45,14 +46,14 @@ protocol AbstractProductA {
 class ConcreteProductA1: AbstractProductA {
 
     func usefulFunctionA() -> String {
-        return "A1"
+        return "ConcreteProductA1"
     }
 }
 
 class ConcreteProductA2: AbstractProductA {
 
     func usefulFunctionA() -> String {
-        return "A2"
+        return "ConcreteProductA2"
     }
 }
 
@@ -66,22 +67,22 @@ protocol AbstractProductB {
 class ConcreteProductB1: AbstractProductB {
 
     func usefulFunctionB() -> String {
-        return "B1"
+        return "ConcreteProductB1"
     }
 
     func anotherUsefulFunctionB(collaborator: AbstractProductA) -> String {
-        return "B1" + collaborator.usefulFunctionA()
+        return "ConcreteProductB1" + collaborator.usefulFunctionA()
     }
 }
 
 class ConcreteProductB2: AbstractProductB {
 
     func usefulFunctionB() -> String {
-        return "B2"
+        return "ConcreteProductB2"
     }
 
     func anotherUsefulFunctionB(collaborator: AbstractProductA) -> String {
-        return "B2" + collaborator.usefulFunctionA()
+        return "ConcreteProductB2" + collaborator.usefulFunctionA()
     }
 }
 ```
@@ -107,15 +108,15 @@ class ConcreteBuilder: Builder {
     }
 
     func producePartA() {
-        product.add(part: "PartA1")
+        product.add(part: "PartA")
     }
 
     func producePartB() {
-        product.add(part: "PartB1")
+        product.add(part: "PartB")
     }
 
     func producePartC() {
-        product.add(part: "PartC1")
+        product.add(part: "PartC")
     }
 
     func getResult() -> Product {
@@ -200,6 +201,37 @@ class ConcreteProduct2: Product {
 
     func operation() -> String {
         return "ConcreteProduct2"
+    }
+}
+```
+
+## 适配器模式
+
+```swift
+class Target {
+
+    func request() -> String {
+        return "Target"
+    }
+}
+
+class Adaptee {
+
+    public func specificRequest() -> String {
+        return "Adaptee"
+    }
+}
+
+class Adapter: Target {
+
+    private var adaptee: Adaptee
+
+    init(_ adaptee: Adaptee) {
+        self.adaptee = adaptee
+    }
+
+    override func request() -> String {
+        return "Adapter" + adaptee.specificRequest()
     }
 }
 ```

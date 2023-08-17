@@ -41,12 +41,12 @@ class AbstractProductA(ABC):
 
 class ConcreteProductA1(AbstractProductA):
     def useful_function_a(self) -> str:
-        return "A1"
+        return "ConcreteProductA1"
 
 
 class ConcreteProductA2(AbstractProductA):
     def useful_function_a(self) -> str:
-        return "A2"
+        return "ConcreteProductA2"
 
 
 class AbstractProductB(ABC):
@@ -61,18 +61,18 @@ class AbstractProductB(ABC):
 
 class ConcreteProductB1(AbstractProductB):
     def useful_function_b(self) -> str:
-        return "B1"
+        return "ConcreteProductB1"
 
     def another_useful_function_b(self, collaborator: AbstractProductA) -> str:
-        return "B1" + collaborator.useful_function_a()
+        return "ConcreteProductB1" + collaborator.useful_function_a()
 
 
 class ConcreteProductB2(AbstractProductB):
     def useful_function_b(self) -> str:
-        return "B2"
+        return "ConcreteProductB2"
 
     def another_useful_function_b(self, collaborator: AbstractProductA) -> str:
-        return "B2" + collaborator.useful_function_a()
+        return "ConcreteProductB2" + collaborator.useful_function_a()
 ```
 
 ## 生成器模式
@@ -103,13 +103,13 @@ class ConcreteBuilder(Builder):
         self._reset()
 
     def produce_part_a(self) -> None:
-        self._product.add_part("PartA1")
+        self._product.add_part("PartA")
 
     def produce_part_b(self) -> None:
-        self._product.add_part("PartB1")
+        self._product.add_part("PartB")
 
     def produce_part_c(self) -> None:
-        self._product.add_part("PartC1")
+        self._product.add_part("PartC")
 
     def get_result(self) -> Product:
         result = self._product
@@ -181,4 +181,26 @@ class ConcreteProduct1(Product):
 class ConcreteProduct2(Product):
     def operation(self) -> str:
         return "ConcreteProduct2"
+```
+
+## 适配器模式
+
+```py
+class Target:
+    def request(self) -> str:
+        return "Target"
+
+
+class Adaptee:
+    def specific_request(self) -> str:
+        return "Adaptee"
+
+
+class Adapter(Target):
+    def __init__(self, adaptee: Adaptee) -> None:
+        super().__init__()
+        self._adaptee = adaptee
+
+    def request(self) -> str:
+        return "Adapter" + self._adaptee.specific_request()
 ```

@@ -4,6 +4,7 @@
 - [抽象工厂模式](#抽象工厂模式)
 - [生成器模式](#生成器模式)
 - [工厂方法模式](#工厂方法模式)
+- [适配器模式](#适配器模式)
 
 ## 抽象工厂模式
 
@@ -20,14 +21,14 @@ public:
 class ConcreteProductA1 : public AbstractProductA {
 public:
     std::string UsefulFunctionA() const override {
-        return "A1";
+        return "ConcreteProductA1";
     }
 };
 
 class ConcreteProductA2 : public AbstractProductA {
 public:
     std::string UsefulFunctionA() const override {
-        return "A2";
+        return "ConcreteProductA2";
     }
 };
 
@@ -43,22 +44,22 @@ public:
 class ConcreteProductB1 : public AbstractProductB {
 public:
     std::string UsefulFunctionB() const override {
-        return "B1";
+        return "ConcreteProductB1";
     }
 
     std::string AnotherUsefulFunctionB(const AbstractProductA &collaborator) const override {
-        return "B1" + collaborator.UsefulFunctionA();
+        return "ConcreteProductB1" + collaborator.UsefulFunctionA();
     }
 };
 
 class ConcreteProductB2 : public AbstractProductB {
 public:
     std::string UsefulFunctionB() const override {
-        return "B2";
+        return "ConcreteProductB2";
     }
 
     std::string AnotherUsefulFunctionB(const AbstractProductA &collaborator) const override {
-        return "B2" + collaborator.UsefulFunctionA();
+        return "ConcreteProductB2" + collaborator.UsefulFunctionA();
     }
 };
 
@@ -132,15 +133,15 @@ public:
     }
 
     void ProducePartA() const override {
-        _product->AddPart("PartA1");
+        _product->AddPart("PartA");
     }
 
     void ProducePartB() const override {
-        _product->AddPart("PartB1");
+        _product->AddPart("PartB");
     }
 
     void ProducePartC() const override {
-        _product->AddPart("PartC1");
+        _product->AddPart("PartC");
     }
 
     Product *GetResult() {
@@ -223,5 +224,40 @@ public:
     Product *FactoryMethod() const override {
         return new ConcreteProduct2();
     }
+};
+```
+
+## 适配器模式
+
+```cpp
+#include <string>
+#include <utility>
+
+class Target {
+public:
+    virtual ~Target() = default;
+
+    virtual std::string Request() const {
+        return "Target";
+    }
+};
+
+class Adaptee {
+public:
+    std::string SpecificRequest() const {
+        return "Adaptee";
+    }
+};
+
+class Adapter : public Target {
+public:
+    explicit Adapter(std::shared_ptr<Adaptee> adaptee) : _adaptee(std::move(adaptee)) {}
+
+    std::string Request() const override {
+        return "Adapter" + _adaptee->SpecificRequest();
+    }
+
+private:
+    std::shared_ptr<Adaptee> _adaptee;
 };
 ```

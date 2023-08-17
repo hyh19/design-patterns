@@ -4,6 +4,7 @@
 - [抽象工厂模式](#抽象工厂模式)
 - [生成器模式](#生成器模式)
 - [工厂方法模式](#工厂方法模式)
+- [适配器模式](#适配器模式)
 
 ## 抽象工厂模式
 
@@ -76,7 +77,7 @@ class ConcreteProductA1 implements AbstractProductA
      */
     public function usefulFunctionA(): string
     {
-        return "A1";
+        return "ConcreteProductA1";
     }
 }
 
@@ -87,7 +88,7 @@ class ConcreteProductA2 implements AbstractProductA
      */
     public function usefulFunctionA(): string
     {
-        return "A2";
+        return "ConcreteProductA2";
     }
 }
 
@@ -112,7 +113,7 @@ class ConcreteProductB1 implements AbstractProductB
      */
     public function usefulFunctionB(): string
     {
-        return "B1";
+        return "ConcreteProductB1";
     }
 
     /**
@@ -121,7 +122,7 @@ class ConcreteProductB1 implements AbstractProductB
      */
     public function anotherUsefulFunctionB(AbstractProductA $collaborator): string
     {
-        return "B1" . $collaborator->usefulFunctionA();
+        return "ConcreteProductB1" . $collaborator->usefulFunctionA();
     }
 }
 
@@ -132,7 +133,7 @@ class ConcreteProductB2 implements AbstractProductB
      */
     public function usefulFunctionB(): string
     {
-        return "B2";
+        return "ConcreteProductB2";
     }
 
     /**
@@ -141,10 +142,9 @@ class ConcreteProductB2 implements AbstractProductB
      */
     public function anotherUsefulFunctionB(AbstractProductA $collaborator): string
     {
-        return "B2" . $collaborator->usefulFunctionA();
+        return "ConcreteProductB2" . $collaborator->usefulFunctionA();
     }
 }
-
 ```
 
 ## 生成器模式
@@ -187,7 +187,7 @@ class ConcreteBuilder implements Builder
      */
     public function producePartA(): void
     {
-        $this->product->addPart("PartA1");
+        $this->product->addPart("PartA");
     }
 
     /**
@@ -195,7 +195,7 @@ class ConcreteBuilder implements Builder
      */
     public function producePartB(): void
     {
-        $this->product->addPart("PartB1");
+        $this->product->addPart("PartB");
     }
 
     /**
@@ -203,7 +203,7 @@ class ConcreteBuilder implements Builder
      */
     public function producePartC(): void
     {
-        $this->product->addPart("PartC1");
+        $this->product->addPart("PartC");
     }
 
     /**
@@ -337,6 +337,58 @@ class ConcreteProduct2 implements Product
     public function operation(): string
     {
         return "ConcreteProduct2";
+    }
+}
+```
+
+## 适配器模式
+
+```php
+<?php
+
+class Target
+{
+    /**
+     * @return string
+     */
+    public function request(): string
+    {
+        return "Target";
+    }
+}
+
+class Adaptee
+{
+    /**
+     * @return string
+     */
+    public function specificRequest(): string
+    {
+        return "Adaptee";
+    }
+}
+
+class Adapter extends Target
+{
+    /**
+     * @var Adaptee
+     */
+    private Adaptee $adaptee;
+
+    /**
+     * @param Adaptee $adaptee
+     */
+    public function __construct(Adaptee $adaptee)
+    {
+        $this->adaptee = $adaptee;
+    }
+
+    /**
+     * @return string
+     */
+    public function request(): string
+    {
+        return "Adapter" . $this->adaptee->specificRequest();
     }
 }
 ```
