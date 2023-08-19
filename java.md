@@ -236,34 +236,32 @@ public class ConcreteProduct2 implements Product {
 ## 适配器模式
 
 ```java
-#include <string>
-#include <utility>
-
-class Target {
-public:
-    virtual ~Target() = default;
-
-    virtual std::string Request() const {
+public class Target {
+    public String request() {
         return "Target";
     }
-};
+}
+```
 
-class Adaptee {
-public:
-    std::string SpecificRequest() const {
+```java
+public class Adaptee {
+    public String specificRequest() {
         return "Adaptee";
     }
-};
+}
+```
 
-class Adapter : public Target {
-public:
-    explicit Adapter(std::shared_ptr<Adaptee> adaptee) : _adaptee(std::move(adaptee)) {}
+```java
+public class Adapter extends Target {
+    private final Adaptee adaptee;
 
-    std::string Request() const override {
-        return "Adapter" + _adaptee->SpecificRequest();
+    public Adapter(Adaptee adaptee) {
+        this.adaptee = adaptee;
     }
 
-private:
-    std::shared_ptr<Adaptee> _adaptee;
-};
+    @Override
+    public String request() {
+        return "Adapter" + adaptee.specificRequest();
+    }
+}
 ```
