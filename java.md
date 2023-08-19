@@ -181,56 +181,56 @@ public class Director {
 ## 工厂方法模式
 
 ```java
-#include <string>
+public abstract class Creator {
+    public abstract Product factoryMethod();
 
-class Product {
-public:
-    virtual ~Product() = default;
-
-    virtual std::string Operation() const = 0;
-};
-
-class ConcreteProduct1 : public Product {
-public:
-    std::string Operation() const override {
-        return "ConcreteProduct1";
+    public String someOperation() {
+        Product product = factoryMethod();
+        return product.operation();
     }
-};
+}
+```
 
-class ConcreteProduct2 : public Product {
-public:
-    std::string Operation() const override {
-        return "ConcreteProduct2";
-    }
-};
-
-class Creator {
-public:
-    virtual ~Creator() = default;
-
-    virtual Product *FactoryMethod() const = 0;
-
-    std::string SomeOperation() const {
-        Product *product = FactoryMethod();
-        std::string result = product->Operation();
-        delete product;
-        return result;
-    }
-};
-
-class ConcreteCreator1 : public Creator {
-public:
-    Product *FactoryMethod() const override {
+```java
+public class ConcreteCreator1 extends Creator {
+    @Override
+    public Product factoryMethod() {
         return new ConcreteProduct1();
     }
-};
+}
+```
 
-class ConcreteCreator2 : public Creator {
-public:
-    Product *FactoryMethod() const override {
+```java
+public class ConcreteCreator2 extends Creator {
+    @Override
+    public Product factoryMethod() {
         return new ConcreteProduct2();
     }
-};
+}
+```
+
+```java
+public interface Product {
+    String operation();
+}
+```
+
+```java
+public class ConcreteProduct1 implements Product {
+    @Override
+    public String operation() {
+        return "ConcreteProduct1";
+    }
+}
+```
+
+```java
+public class ConcreteProduct2 implements Product {
+    @Override
+    public String operation() {
+        return "ConcreteProduct2";
+    }
+}
 ```
 
 ## 适配器模式
