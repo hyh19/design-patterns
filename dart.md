@@ -91,74 +91,65 @@ class ConcreteProductB2 implements AbstractProductB {
 ## 生成器模式
 
 ```dart
-public interface Builder {
-    void producePartA();
+abstract class Builder {
+  void producePartA();
 
-    void producePartB();
+  void producePartB();
 
-    void producePartC();
+  void producePartC();
 }
-```
 
-```dart
-public class ConcreteBuilder implements Builder {
-    private Product product;
+class ConcreteBuilder implements Builder {
+  late Product _product;
 
-    public ConcreteBuilder() {
-        reset();
-    }
+  ConcreteBuilder() {
+    _reset();
+  }
 
-    @Override
-    public void producePartA() {
-        product.addPart("PartA");
-    }
+  @override
+  void producePartA() {
+    _product.addPart("PartA");
+  }
 
-    @Override
-    public void producePartB() {
-        product.addPart("PartB");
-    }
+  @override
+  void producePartB() {
+    _product.addPart("PartB");
+  }
 
-    @Override
-    public void producePartC() {
-        product.addPart("PartC");
-    }
+  @override
+  void producePartC() {
+    _product.addPart("PartC");
+  }
 
-    public Product getResult() {
-        Product result = product;
-        reset();
-        return result;
-    }
+  Product getResult() {
+    Product result = _product;
+    _reset();
+    return result;
+  }
 
-    private void reset() {
-        product = new Product();
-    }
+  void _reset() {
+    _product = Product();
+  }
 }
-```
 
-```dart
-import java.util.ArrayList;
-import java.util.List;
+class Product {
+  final List<String> _parts = [];
 
-public class Product {
-    private final List<String> parts = new ArrayList<>();
-
-    void addPart(String part) {
-        parts.add(part);
-    }
+  void addPart(String part) {
+    _parts.add(part);
+  }
 }
-```
 
-```dart
-public class Director {
-    public static void buildMinimalViableProduct(Builder builder) {
-        builder.producePartA();
-    }
+class Director {
+  static void buildMinimalViableProduct(Builder builder) {
+    builder.producePartA();
+  }
 
-    public static void buildFullFeaturedProduct(Builder builder) {
-        builder.producePartA();
-        builder.producePartB();
-        builder.producePartC();
-    }
+  static void buildFullFeaturedProduct(Builder builder) {
+    builder.producePartA();
+    builder.producePartB();
+    builder.producePartC();
+  }
 }
 ```
 
