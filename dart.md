@@ -156,87 +156,71 @@ class Director {
 ## 工厂方法模式
 
 ```dart
-public abstract class Creator {
-    public abstract Product factoryMethod();
+abstract class Creator {
+  Product factoryMethod();
 
-    public String someOperation() {
-        Product product = factoryMethod();
-        return product.operation();
-    }
+  String someOperation() {
+    Product product = factoryMethod();
+    return product.operation();
+  }
 }
-```
 
-```dart
-public class ConcreteCreator1 extends Creator {
-    @Override
-    public Product factoryMethod() {
-        return new ConcreteProduct1();
-    }
+class ConcreteCreator1 extends Creator {
+  @override
+  Product factoryMethod() {
+    return ConcreteProduct1();
+  }
 }
-```
 
-```dart
-public class ConcreteCreator2 extends Creator {
-    @Override
-    public Product factoryMethod() {
-        return new ConcreteProduct2();
-    }
+class ConcreteCreator2 extends Creator {
+  @override
+  Product factoryMethod() {
+    return ConcreteProduct2();
+  }
 }
-```
 
-```dart
-public interface Product {
-    String operation();
+abstract class Product {
+  String operation();
 }
-```
 
-```dart
-public class ConcreteProduct1 implements Product {
-    @Override
-    public String operation() {
-        return "ConcreteProduct1";
-    }
+class ConcreteProduct1 implements Product {
+  @override
+  String operation() {
+    return "ConcreteProduct1";
+  }
 }
-```
 
-```dart
-public class ConcreteProduct2 implements Product {
-    @Override
-    public String operation() {
-        return "ConcreteProduct2";
-    }
+class ConcreteProduct2 implements Product {
+  @override
+  String operation() {
+    return "ConcreteProduct2";
+  }
 }
 ```
 
 ## 适配器模式
 
 ```dart
-public class Target {
-    public String request() {
-        return "Target";
-    }
+class Target {
+  String request() {
+    return "Target";
+  }
 }
-```
 
-```dart
-public class Adaptee {
-    public String specificRequest() {
-        return "Adaptee";
-    }
+class Adaptee {
+  String specificRequest() {
+    return "Adaptee";
+  }
 }
-```
 
-```dart
-public class Adapter extends Target {
-    private final Adaptee adaptee;
+class Adapter extends Target {
+  final Adaptee _adaptee;
 
-    public Adapter(Adaptee adaptee) {
-        this.adaptee = adaptee;
-    }
+  Adapter(this._adaptee);
 
-    @Override
-    public String request() {
-        return "Adapter" + adaptee.specificRequest();
-    }
+  @override
+  String request() {
+    return "Adapter${_adaptee.specificRequest()}";
+  }
 }
 ```
