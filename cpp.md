@@ -5,6 +5,7 @@
 - [生成器模式](#生成器模式)
 - [工厂方法模式](#工厂方法模式)
 - [适配器模式](#适配器模式)
+- [桥接模式](#桥接模式)
 
 ## 抽象工厂模式
 
@@ -259,5 +260,57 @@ public:
 
 private:
     std::shared_ptr<Adaptee> _adaptee;
+};
+```
+
+## 桥接模式
+
+```cpp
+#include <string>
+#include <utility>
+
+class Implementation {
+public:
+    virtual ~Implementation() = default;
+
+    virtual std::string OperationImplementation() const = 0;
+};
+
+class ConcreteImplementationA : public Implementation {
+public:
+    std::string OperationImplementation() const override {
+        return "ConcreteImplementationA";
+    }
+};
+
+class ConcreteImplementationB : public Implementation {
+public:
+    std::string OperationImplementation() const override {
+        return "ConcreteImplementationB";
+    }
+};
+
+class Abstraction {
+public:
+    explicit Abstraction(std::shared_ptr<Implementation> implementation) :
+            _implementation(std::move(implementation)) {}
+
+    virtual ~Abstraction() = default;
+
+    virtual std::string Operation() const {
+        return _implementation->OperationImplementation();
+    }
+
+protected:
+    std::shared_ptr<Implementation> _implementation;
+};
+
+class ExtendedAbstraction : public Abstraction {
+public:
+    explicit ExtendedAbstraction(const std::shared_ptr<Implementation> &implementation) : Abstraction(implementation) {}
+
+    std::string Operation() const override {
+        return "ExtendedAbstraction" + Abstraction::Operation();
+    }
 };
 ```

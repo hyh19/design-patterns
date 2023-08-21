@@ -5,6 +5,7 @@
 - [生成器模式](#生成器模式)
 - [工厂方法模式](#工厂方法模式)
 - [适配器模式](#适配器模式)
+- [桥接模式](#桥接模式)
 
 ## 抽象工厂模式
 
@@ -394,6 +395,77 @@ class Adapter extends Target
     public function request(): string
     {
         return "Adapter" . $this->adaptee->specificRequest();
+    }
+}
+```
+
+## 桥接模式
+
+```php
+<?php
+
+class Abstraction
+{
+    /**
+     * @var Implementation
+     */
+    protected Implementation $implementation;
+
+    /**
+     * @param Implementation $implementation
+     */
+    public function __construct(Implementation $implementation)
+    {
+        $this->implementation = $implementation;
+    }
+
+    /**
+     * @return string
+     */
+    public function operation(): string
+    {
+        return $this->implementation->operationImplementation();
+    }
+}
+
+class ExtendedAbstraction extends Abstraction
+{
+    /**
+     * @return string
+     */
+    public function operation(): string
+    {
+        return "ExtendedAbstraction: Extended operation with:\n" . parent::operation();
+    }
+}
+
+interface Implementation
+{
+    /**
+     * @return string
+     */
+    public function operationImplementation(): string;
+}
+
+class ConcreteImplementationA implements Implementation
+{
+    /**
+     * @return string
+     */
+    public function operationImplementation(): string
+    {
+        return "ConcreteImplementationA";
+    }
+}
+
+class ConcreteImplementationB implements Implementation
+{
+    /**
+     * @return string
+     */
+    public function operationImplementation(): string
+    {
+        return "ConcreteImplementationB";
     }
 }
 ```

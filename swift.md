@@ -5,6 +5,7 @@
 - [生成器模式](#生成器模式)
 - [工厂方法模式](#工厂方法模式)
 - [适配器模式](#适配器模式)
+- [桥接模式](#桥接模式)
 
 ## 抽象工厂模式
 
@@ -232,6 +233,49 @@ class Adapter: Target {
 
     override func request() -> String {
         return "Adapter" + adaptee.specificRequest()
+    }
+}
+```
+
+## 桥接模式
+
+```swift
+class Abstraction {
+
+    fileprivate var implementation: Implementation
+
+    init(_ implementation: Implementation) {
+        self.implementation = implementation
+    }
+
+    func operation() -> String {
+        return implementation.operationImplementation()
+    }
+}
+
+class ExtendedAbstraction: Abstraction {
+
+    override func operation() -> String {
+        return "ExtendedAbstraction" + super.operation()
+    }
+}
+
+protocol Implementation {
+
+    func operationImplementation() -> String
+}
+
+class ConcreteImplementationA: Implementation {
+
+    func operationImplementation() -> String {
+        return "ConcreteImplementationA"
+    }
+}
+
+class ConcreteImplementationB: Implementation {
+
+    func operationImplementation() -> String {
+        return "ConcreteImplementationB"
     }
 }
 ```

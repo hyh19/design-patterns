@@ -5,6 +5,7 @@
 - [生成器模式](#生成器模式)
 - [工厂方法模式](#工厂方法模式)
 - [适配器模式](#适配器模式)
+- [桥接模式](#桥接模式)
 
 ## 抽象工厂模式
 
@@ -221,6 +222,47 @@ class Adapter extends Target {
   @override
   String request() {
     return "Adapter${_adaptee.specificRequest()}";
+  }
+}
+```
+
+## 桥接模式
+
+```dart
+class Abstraction {
+  final Implementation _implementation;
+
+  Abstraction(this._implementation);
+
+  String operation() {
+    return _implementation.operationImplementation();
+  }
+}
+
+class ExtendedAbstraction extends Abstraction {
+  ExtendedAbstraction(super.implementation);
+
+  @override
+  String operation() {
+    return "ExtendedAbstraction${super.operation()}";
+  }
+}
+
+abstract class Implementation {
+  String operationImplementation();
+}
+
+class ConcreteImplementationA implements Implementation {
+  @override
+  String operationImplementation() {
+    return "ConcreteImplementationA";
+  }
+}
+
+abstract class ConcreteImplementationB implements Implementation {
+  @override
+  String operationImplementation() {
+    return "ConcreteImplementationB";
   }
 }
 ```

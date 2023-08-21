@@ -204,3 +204,39 @@ class Adapter(Target):
     def request(self) -> str:
         return "Adapter" + self._adaptee.specific_request()
 ```
+
+## 桥接模式
+
+```py
+from __future__ import annotations
+from abc import ABC, abstractmethod
+
+
+class Abstraction:
+    def __init__(self, implementation: Implementation) -> None:
+        self._implementation = implementation
+
+    def operation(self) -> str:
+        return self._implementation.operation_implementation()
+
+
+class ExtendedAbstraction(Abstraction):
+    def operation(self) -> str:
+        return "ExtendedAbstraction" + super().operation()
+
+
+class Implementation(ABC):
+    @abstractmethod
+    def operation_implementation(self) -> str:
+        pass
+
+
+class ConcreteImplementationA(Implementation):
+    def operation_implementation(self) -> str:
+        return "ConcreteImplementationA"
+
+
+class ConcreteImplementationB(Implementation):
+    def operation_implementation(self) -> str:
+        return "ConcreteImplementationB"
+```

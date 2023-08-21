@@ -5,6 +5,7 @@
 - [生成器模式](#生成器模式)
 - [工厂方法模式](#工厂方法模式)
 - [适配器模式](#适配器模式)
+- [桥接模式](#桥接模式)
 
 ## 抽象工厂模式
 
@@ -262,6 +263,59 @@ public class Adapter extends Target {
     @Override
     public String request() {
         return "Adapter" + adaptee.specificRequest();
+    }
+}
+```
+
+## 桥接模式
+
+```java
+public class Abstraction {
+    protected final Implementation implementation;
+
+    public Abstraction(Implementation implementation) {
+        this.implementation = implementation;
+    }
+
+    public String operation() {
+        return implementation.operationImplementation();
+    }
+}
+```
+
+```java
+public class ExtendedAbstraction extends Abstraction {
+    public ExtendedAbstraction(Implementation implementation) {
+        super(implementation);
+    }
+
+    @Override
+    public String operation() {
+        return "ExtendedAbstraction" + super.operation();
+    }
+}
+```
+
+```java
+public interface Implementation {
+    String operationImplementation();
+}
+```
+
+```java
+public class ConcreteImplementationA implements Implementation {
+    @Override
+    public String operationImplementation() {
+        return "ConcreteImplementationA";
+    }
+}
+```
+
+```java
+public class ConcreteImplementationB implements Implementation {
+    @Override
+    public String operationImplementation() {
+        return "ConcreteImplementationB";
     }
 }
 ```
