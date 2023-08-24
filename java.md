@@ -1224,60 +1224,62 @@ protected:
 
 ### 访问者模式
 
-```cpp
-#include <iostream>
+```java
+public interface Element {
+    void accept(Visitor visitor);
+}
+```
 
-class ConcreteComponentA;
-
-class ConcreteComponentB;
-
-class Visitor {
-public:
-    virtual void VisitConcreteComponentA(const ConcreteComponentA *element) const = 0;
-
-    virtual void VisitConcreteComponentB(const ConcreteComponentB *element) const = 0;
-};
-
-class Component {
-public:
-    virtual ~Component() = default;
-
-    virtual void Accept(const Visitor *visitor) const = 0;
-};
-
-class ConcreteComponentA : public Component {
-public:
-    void Accept(const Visitor *visitor) const override {
-        visitor->VisitConcreteComponentA(this);
+```java
+public class ConcreteElementA implements Element {
+    @Override
+    public void accept(Visitor visitor) {
+        visitor.visitConcreteElementA(this);
     }
-};
+}
+```
 
-class ConcreteComponentB : public Component {
-public:
-    void Accept(const Visitor *visitor) const override {
-        visitor->VisitConcreteComponentB(this);
+```java
+public class ConcreteElementB implements Element {
+    @Override
+    public void accept(Visitor visitor) {
+        visitor.visitConcreteElementB(this);
     }
-};
+}
+```
 
-class ConcreteVisitor1 : public Visitor {
-public:
-    void VisitConcreteComponentA(const ConcreteComponentA *element) const override {
-        std::cout << "ConcreteVisitor1: VisitConcreteComponentA";
+```java
+public interface Visitor {
+    void visitConcreteElementA(ConcreteElementA element);
+
+    void visitConcreteElementB(ConcreteElementB element);
+}
+```
+
+```java
+public class ConcreteVisitor1 implements Visitor {
+    @Override
+    public void visitConcreteElementA(ConcreteElementA element) {
+        System.out.println("ConcreteVisitor1: visitConcreteElementA");
     }
 
-    void VisitConcreteComponentB(const ConcreteComponentB *element) const override {
-        std::cout << "ConcreteVisitor1: VisitConcreteComponentB";
+    @Override
+    public void visitConcreteElementB(ConcreteElementB element) {
+        System.out.println("ConcreteVisitor1: visitConcreteElementB");
     }
-};
+}
+```
 
-class ConcreteVisitor2 : public Visitor {
-public:
-    void VisitConcreteComponentA(const ConcreteComponentA *element) const override {
-        std::cout << "ConcreteVisitor2: VisitConcreteComponentA";
+```java
+public class ConcreteVisitor2 implements Visitor {
+    @Override
+    public void visitConcreteElementA(ConcreteElementA element) {
+        System.out.println("ConcreteVisitor2: visitConcreteElementA");
     }
 
-    void VisitConcreteComponentB(const ConcreteComponentB *element) const override {
-        std::cout << "ConcreteVisitor2: VisitConcreteComponentB";
+    @Override
+    public void visitConcreteElementB(ConcreteElementB element) {
+        System.out.println("ConcreteVisitor2: visitConcreteElementB");
     }
-};
+}
 ```
