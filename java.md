@@ -900,73 +900,71 @@ private:
 
 ### 备忘录模式
 
-```cpp
-#include <string>
-#include <utility>
-#include <vector>
+```java
+public class Memento {
+    private final int state;
 
-class Originator;
-
-class Memento {
-public:
-    explicit Memento(std::string state) : _state(std::move(state)) {
+    public Memento(int state) {
+        this.state = state;
     }
 
-    std::string GetState() const {
-        return _state;
+    public int getState() {
+        return state;
+    }
+}
+```
+
+```java
+import java.util.Random;
+
+public class Originator {
+    private int state;
+
+    public Originator(int state) {
+        this.state = state;
     }
 
-private:
-    std::string _state;
-};
-
-class Originator {
-public:
-    explicit Originator(std::string state) : _state(std::move(state)) {
+    public int getState() {
+        return state;
     }
 
-    const Memento *Save() {
-        return new Memento(_state);
+    public Memento save() {
+        return new Memento(state);
     }
 
-    void Restore(const Memento *memento) {
-        _state = memento->GetState();
+    public void restore(Memento memento) {
+        state = memento.getState();
     }
 
-private:
-    std::string _state;
-};
+    public void doSomething() {
+        state = (new Random()).nextInt();
+    }
+}
+```
 
-class Caretaker {
-public:
-    explicit Caretaker(Originator *originator) : _originator(originator) {
+```java
+import java.util.Deque;
+import java.util.LinkedList;
+
+public class Caretaker {
+    private final Deque<Memento> mementos = new LinkedList<>();
+    private final Originator originator;
+
+    public Caretaker(Originator originator) {
+        this.originator = originator;
     }
 
-    ~Caretaker() {
-        for (auto memento: _mementos) {
-            delete memento;
-        }
+    public void backup() {
+        mementos.push(originator.save());
     }
 
-    void Backup() {
-        _mementos.push_back(_originator->Save());
-    }
-
-    void Undo() {
-        if (_mementos.empty()) {
+    public void undo() {
+        if (mementos.isEmpty()) {
             return;
         }
-
-        const Memento *memento = _mementos.back();
-        _mementos.pop_back();
-        _originator->Restore(memento);
-        delete memento;
+        originator.restore(mementos.pop());
     }
-
-private:
-    std::vector<const Memento *> _mementos;
-    Originator *_originator;
-};
+}
 ```
 
 ### 观察者模式
