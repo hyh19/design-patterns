@@ -229,7 +229,7 @@ class Director {
 
 ### 原型模式
 
-```py
+```swift
 from __future__ import annotations
 import copy
 from typing import List, Optional, Dict
@@ -258,7 +258,7 @@ class Component:
 
 ### 单例模式
 
-```py
+```swift
 from __future__ import annotations
 from typing import Dict, Any
 
@@ -356,7 +356,7 @@ class ConcreteImplementationB: Implementation {
 
 ### 组合模式
 
-```py
+```swift
 from __future__ import annotations
 from abc import ABC, abstractmethod
 from typing import List, Optional
@@ -420,7 +420,7 @@ class Composite(Component):
 
 ### 装饰模式
 
-```py
+```swift
 from abc import ABC, abstractmethod
 
 
@@ -458,7 +458,7 @@ class ConcreteDecoratorB(Decorator):
 
 ### 享元模式
 
-```py
+```swift
 from typing import Dict, List
 
 
@@ -488,7 +488,7 @@ class FlyweightFactory:
 
 ### 代理模式
 
-```py
+```swift
 from abc import ABC, abstractmethod
 
 
@@ -516,7 +516,7 @@ class Proxy(Subject):
 
 ### 责任链模式
 
-```py
+```swift
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
@@ -575,7 +575,7 @@ class ConcreteHandler3(BaseHandler):
 
 ### 命令模式
 
-```py
+```swift
 from __future__ import annotations
 from abc import ABC, abstractmethod
 from typing import Optional
@@ -635,7 +635,7 @@ class Invoker:
 
 ### 迭代器模式
 
-```py
+```swift
 from __future__ import annotations
 
 from collections.abc import Iterable, Iterator
@@ -677,7 +677,7 @@ class WordsCollection(Iterable):
 
 ### 中介者模式
 
-```py
+```swift
 from __future__ import annotations
 from abc import ABC, abstractmethod
 from typing import Optional
@@ -744,7 +744,7 @@ class ConcreteComponent2(Component):
 
 ### 备忘录模式
 
-```py
+```swift
 from __future__ import annotations
 from random import sample
 from string import ascii_letters
@@ -794,7 +794,7 @@ class Caretaker:
 
 ### 观察者模式
 
-```py
+```swift
 from __future__ import annotations
 from abc import ABC, abstractmethod
 from random import randrange
@@ -853,7 +853,7 @@ class ConcreteObserverB(Observer):
 
 ### 状态模式
 
-```py
+```swift
 from __future__ import annotations
 from abc import ABC, abstractmethod
 from typing import Optional
@@ -917,7 +917,7 @@ class ConcreteStateB(State):
 
 ### 策略模式
 
-```py
+```swift
 from __future__ import annotations
 from abc import ABC, abstractmethod
 from typing import List
@@ -947,110 +947,131 @@ class Context:
 
 ### 模版方法模式
 
-```py
-from abc import ABC, abstractmethod
+```swift
+protocol AbstractClass {
 
+    func templateMethod()
 
-class AbstractClass(ABC):
-    def template_method(self) -> None:
-        self.base_operation1()
-        self.required_operation1()
-        self.base_operation2()
-        self.hook1()
-        self.required_operation2()
-        self.base_operation3()
-        self.hook2()
+    func baseOperation1()
+    func baseOperation2()
+    func baseOperation3()
 
-    def base_operation1(self) -> None:
-        print("AbstractClass: base_operation1")
+    func requiredOperation1()
+    func requiredOperation2()
 
-    def base_operation2(self) -> None:
-        print("AbstractClass: base_operation2")
+    func hook1()
+    func hook2()
+}
 
-    def base_operation3(self) -> None:
-        print("AbstractClass: base_operation3")
+extension AbstractClass {
 
-    @abstractmethod
-    def required_operation1(self) -> None:
-        pass
+    func templateMethod() {
+        baseOperation1()
+        requiredOperation1()
+        baseOperation2()
+        hook1()
+        requiredOperation2()
+        baseOperation3()
+        hook2()
+    }
 
-    @abstractmethod
-    def required_operation2(self) -> None:
-        pass
+    func baseOperation1() {
+        print("AbstractClass: baseOperation1")
+    }
 
-    def hook1(self) -> None:
-        pass
+    func baseOperation2() {
+        print("AbstractClass: baseOperation2")
+    }
 
-    def hook2(self) -> None:
-        pass
+    func baseOperation3() {
+        print("AbstractClass: baseOperation3")
+    }
 
+    func hook1() {
+    }
 
-class ConcreteClass1(AbstractClass):
-    def required_operation1(self) -> None:
-        print("ConcreteClass1: required_operation1")
+    func hook2() {
+    }
+}
 
-    def required_operation2(self) -> None:
-        print("ConcreteClass1: required_operation2")
+class ConcreteClass1: AbstractClass {
 
+    func requiredOperation1() {
+        print("ConcreteClass1: requiredOperation1")
+    }
 
-class ConcreteClass2(AbstractClass):
-    def required_operation1(self) -> None:
-        print("ConcreteClass2: required_operation1")
+    func requiredOperation2() {
+        print("ConcreteClass1: requiredOperation2")
+    }
 
-    def required_operation2(self) -> None:
-        print("ConcreteClass2: required_operation2")
+    func hook2() {
+        print("ConcreteClass1: hook2")
+    }
+}
 
-    def hook1(self) -> None:
+class ConcreteClass2: AbstractClass {
+
+    func requiredOperation1() {
+        print("ConcreteClass2: requiredOperation1")
+    }
+
+    func requiredOperation2() {
+        print("ConcreteClass2: requiredOperation2")
+    }
+
+    func hook1() {
         print("ConcreteClass2: hook1")
+    }
+}
 ```
 
 ### 访问者模式
 
-```py
-from __future__ import annotations
-from abc import ABC, abstractmethod
-from typing import List
+```swift
+protocol Component {
 
+    func accept(_ visitor: Visitor)
+}
 
-class Component(ABC):
-    @abstractmethod
-    def accept(self, visitor: Visitor) -> None:
-        pass
+class ConcreteComponentA: Component {
 
+    func accept(_ visitor: Visitor) {
+        visitor.visitConcreteComponentA(element: self)
+    }
+}
 
-class ConcreteComponentA(Component):
-    def accept(self, visitor: Visitor) -> None:
-        visitor.visit_concrete_component_a(self)
+class ConcreteComponentB: Component {
 
+    func accept(_ visitor: Visitor) {
+        visitor.visitConcreteComponentB(element: self)
+    }
+}
 
-class ConcreteComponentB(Component):
-    def accept(self, visitor: Visitor):
-        visitor.visit_concrete_component_b(self)
+protocol Visitor {
 
+    func visitConcreteComponentA(element: ConcreteComponentA)
+    func visitConcreteComponentB(element: ConcreteComponentB)
+}
 
-class Visitor(ABC):
+class ConcreteVisitor1: Visitor {
 
-    @abstractmethod
-    def visit_concrete_component_a(self, element: ConcreteComponentA) -> None:
-        pass
+    func visitConcreteComponentA(element: ConcreteComponentA) {
+        print("ConcreteVisitor1: visitConcreteComponentA")
+    }
 
-    @abstractmethod
-    def visit_concrete_component_b(self, element: ConcreteComponentB) -> None:
-        pass
+    func visitConcreteComponentB(element: ConcreteComponentB) {
+        print("ConcreteVisitor1: visitConcreteComponentB")
+    }
+}
 
+class ConcreteVisitor2: Visitor {
 
-class ConcreteVisitor1(Visitor):
-    def visit_concrete_component_a(self, element: ConcreteComponentA) -> None:
-        print("ConcreteVisitor1: visit_concrete_component_a")
+    func visitConcreteComponentA(element: ConcreteComponentA) {
+        print("ConcreteVisitor2: visitConcreteComponentA")
+    }
 
-    def visit_concrete_component_b(self, element: ConcreteComponentB) -> None:
-        print("ConcreteVisitor1: visit_concrete_component_b")
-
-
-class ConcreteVisitor2(Visitor):
-    def visit_concrete_component_a(self, element: ConcreteComponentA) -> None:
-        print("ConcreteVisitor2: visit_concrete_component_a")
-
-    def visit_concrete_component_b(self, element: ConcreteComponentB) -> None:
-        print("ConcreteVisitor2: visit_concrete_component_b")
+    func visitConcreteComponentB(element: ConcreteComponentB) {
+        print("ConcreteVisitor2: visitConcreteComponentB")
+    }
+}
 ```
