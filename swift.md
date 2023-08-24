@@ -636,110 +636,108 @@ class Invoker:
 ### 迭代器模式
 
 ```swift
-from __future__ import annotations
+class WordsCollection {
 
-from collections.abc import Iterable, Iterator
-from typing import List
+    fileprivate lazy var items = [String]()
 
+    func append(_ item: String) {
+        self.items.append(item)
+    }
+}
 
-class AlphabeticalOrderIterator(Iterator):
-    def __init__(self, collection: WordsCollection, reverse: bool = False) -> None:
-        self._collection = collection
-        self._reverse = reverse
-        self._position = -1 if reverse else 0
+extension WordsCollection: Sequence {
 
-    def __next__(self) -> str:
-        try:
-            value = self._collection[self._position]
-            self._position += -1 if self._reverse else 1
-        except IndexError:
-            raise StopIteration()
+    func makeIterator() -> WordsIterator {
+        return WordsIterator(self)
+    }
+}
 
-        return value
+class WordsIterator: IteratorProtocol {
 
+    private let collection: WordsCollection
+    private var index = 0
 
-class WordsCollection(Iterable):
-    def __init__(self, collection: List[str] = []) -> None:
-        self._collection = collection
+    init(_ collection: WordsCollection) {
+        self.collection = collection
+    }
 
-    def __iter__(self) -> AlphabeticalOrderIterator:
-        return AlphabeticalOrderIterator(self)
-
-    def __getitem__(self, index: int) -> str:
-        return self._collection[index]
-
-    def get_reverse_iterator(self) -> AlphabeticalOrderIterator:
-        return AlphabeticalOrderIterator(self, True)
-
-    def add_item(self, item: str) -> None:
-        self._collection.append(item)
+    func next() -> String? {
+        defer {
+            index += 1
+        }
+        return index < collection.items.count ? collection.items[index] : nil
+    }
+}
 ```
 
 ### 中介者模式
 
 ```swift
-from __future__ import annotations
-from abc import ABC, abstractmethod
-from typing import Optional
+protocol Mediator: AnyObject {
 
+    func notify(sender: Component, event: String)
+}
 
-class Mediator(ABC):
-    @abstractmethod
-    def notify(self, sender: Component, event: str) -> None:
-        pass
+class ConcreteMediator: Mediator {
 
+    private var component1: ConcreteComponent1
+    private var component2: ConcreteComponent2
 
-class ConcreteMediator(Mediator):
-    def __init__(self, component1: ConcreteComponent1, component2: ConcreteComponent2) -> None:
-        self._component1 = component1
-        self._component2 = component2
-        self._component1.mediator = self
-        self._component2.mediator = self
+    init(_ component1: ConcreteComponent1, _ component2: ConcreteComponent2) {
+        self.component1 = component1
+        self.component2 = component2
+        component1.update(mediator: self)
+        component2.update(mediator: self)
+    }
 
-    def notify(self, sender: Component, event: str) -> None:
-        if event == "A":
-            self._component2.do_c()
-        elif event == "D":
-            self._component1.do_b()
-            self._component2.do_c()
+    func notify(sender: Component, event: String) {
+        if event == "A" {
+            self.component2.doC()
+        } else if (event == "D") {
+            self.component1.doB()
+            self.component2.doC()
+        }
+    }
+}
 
+class Component {
 
-class Component(ABC):
-    def __init__(self, mediator: Optional[Mediator] = None) -> None:
-        self._mediator = mediator
+    fileprivate weak var mediator: Mediator?
 
-    @property
-    def mediator(self) -> Optional[Mediator]:
-        return self._mediator
+    init(mediator: Mediator? = nil) {
+        self.mediator = mediator
+    }
 
-    @mediator.setter
-    def mediator(self, mediator: Mediator) -> None:
-        self._mediator = mediator
+    func update(mediator: Mediator) {
+        self.mediator = mediator
+    }
+}
 
+class ConcreteComponent1: Component {
 
-class ConcreteComponent1(Component):
-    def do_a(self) -> None:
-        print("ConcreteComponent1: do_a")
-        assert self.mediator is not None
-        self.mediator.notify(self, "A")
+    func doA() {
+        print("ConcreteComponent1: doA")
+        mediator?.notify(sender: self, event: "A")
+    }
 
-    def do_b(self) -> None:
-        print("ConcreteComponent1: do_b")
-        assert self.mediator is not None
-        self.mediator.notify(self, "B")
+    func doB() {
+        print("ConcreteComponent1: doA")
+        mediator?.notify(sender: self, event: "B")
+    }
+}
 
+class ConcreteComponent2: Component {
 
-class ConcreteComponent2(Component):
-    def do_c(self) -> None:
-        print("ConcreteComponent2: do_c")
-        assert self.mediator is not None
-        self.mediator.notify(self, "C")
+    func doC() {
+        print("ConcreteComponent2: doC")
+        mediator?.notify(sender: self, event: "C")
+    }
 
-    def do_d(self) -> None:
-        print("ConcreteComponent2: do_d")
-        assert self.mediator is not None
-        self.mediator.notify(self, "D")
-
+    func doD() {
+        print("ConcreteComponent2: doD")
+        mediator?.notify(sender: self, event: "D")
+    }
+}
 ```
 
 ### 备忘录模式
