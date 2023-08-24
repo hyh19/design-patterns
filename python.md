@@ -1,4 +1,72 @@
+<!-- omit in toc -->
 # 设计模式：Python 实现
+
+- [工厂方法模式](#工厂方法模式)
+- [抽象工厂模式](#抽象工厂模式)
+- [生成器模式](#生成器模式)
+- [原型模式](#原型模式)
+- [单例模式](#单例模式)
+- [适配器模式](#适配器模式)
+- [桥接模式](#桥接模式)
+- [适配器模式](#适配器模式-1)
+- [桥接模式](#桥接模式-1)
+- [组合模式](#组合模式)
+- [装饰模式](#装饰模式)
+- [享元模式](#享元模式)
+- [代理模式](#代理模式)
+- [责任链模式](#责任链模式)
+- [命令模式](#命令模式)
+- [迭代器模式](#迭代器模式)
+- [中介者模式](#中介者模式)
+- [备忘录模式](#备忘录模式)
+- [观察者模式](#观察者模式)
+- [状态模式](#状态模式)
+- [策略模式](#策略模式)
+- [模版方法模式](#模版方法模式)
+- [访问者模式](#访问者模式)
+
+## 工厂方法模式
+
+```py
+from __future__ import annotations
+from abc import ABC, abstractmethod
+
+
+class Creator(ABC):
+    @abstractmethod
+    def factory_method(self) -> Product:
+        pass
+
+    def some_operation(self) -> str:
+        product = self.factory_method()
+        return product.operation()
+
+
+class ConcreteCreator1(Creator):
+    def factory_method(self) -> Product:
+        return ConcreteProduct1()
+
+
+class ConcreteCreator2(Creator):
+    def factory_method(self) -> Product:
+        return ConcreteProduct2()
+
+
+class Product(ABC):
+    @abstractmethod
+    def operation(self) -> str:
+        pass
+
+
+class ConcreteProduct1(Product):
+    def operation(self) -> str:
+        return "ConcreteProduct1"
+
+
+class ConcreteProduct2(Product):
+    def operation(self) -> str:
+        return "ConcreteProduct2"
+```
 
 ## 抽象工厂模式
 
@@ -140,47 +208,55 @@ class Director:
         builder.produce_part_c()
 ```
 
-## 工厂方法模式
+## 原型模式
 
 ```py
 from __future__ import annotations
-from abc import ABC, abstractmethod
+import copy
+from typing import List, Optional, Dict
 
 
-class Creator(ABC):
-    @abstractmethod
-    def factory_method(self) -> Product:
-        pass
+class SomeComponent:
+    def __init__(self, some_int: int, some_list_of_objects: List) -> None:
+        self.some_int = some_int
+        self.some_list_of_objects = some_list_of_objects
 
-    def some_operation(self) -> str:
-        product = self.factory_method()
-        return product.operation()
+    def __copy__(self) -> SomeComponent:
+        some_list_of_objects = copy.copy(self.some_list_of_objects)
+        new = self.__class__(self.some_int, some_list_of_objects)
 
+        return new
 
-class ConcreteCreator1(Creator):
-    def factory_method(self) -> Product:
-        return ConcreteProduct1()
+    def __deepcopy__(self, memo: Optional[Dict] = None) -> SomeComponent:
+        if memo is None:
+            memo = {}
 
+        some_list_of_objects = copy.deepcopy(self.some_list_of_objects, memo)
+        new = self.__class__(self.some_int, some_list_of_objects)
 
-class ConcreteCreator2(Creator):
-    def factory_method(self) -> Product:
-        return ConcreteProduct2()
+        return new
+```
 
+## 单例模式
 
-class Product(ABC):
-    @abstractmethod
-    def operation(self) -> str:
-        pass
-
-
-class ConcreteProduct1(Product):
-    def operation(self) -> str:
-        return "ConcreteProduct1"
+```py
+from __future__ import annotations
+from typing import Dict, Any
 
 
-class ConcreteProduct2(Product):
-    def operation(self) -> str:
-        return "ConcreteProduct2"
+class SingletonMeta(type):
+    _instances: Dict[SingletonMeta, Any] = {}
+
+    def __call__(cls, *args, **kwargs):
+        if cls not in SingletonMeta._instances:
+            instance = super().__call__(*args, **kwargs)
+            SingletonMeta._instances[cls] = instance
+        return SingletonMeta._instances[cls]
+
+
+class Singleton(metaclass=SingletonMeta):
+    def some_business_logic(self):
+        print("Singleton: some_business_logic")
 ```
 
 ## 适配器模式
@@ -239,6 +315,385 @@ class ConcreteImplementationA(Implementation):
 class ConcreteImplementationB(Implementation):
     def operation_implementation(self) -> str:
         return "ConcreteImplementationB"
+```
+
+## 适配器模式
+
+```py
+class Target:
+    def request(self) -> str:
+        return "Target: request"
+
+
+class Adaptee:
+    def specific_request(self) -> str:
+        return "Adaptee: specific_request"
+
+
+class Adapter(Target):
+    def __init__(self, adaptee: Adaptee) -> None:
+        super().__init__()
+        self._adaptee = adaptee
+
+    def request(self) -> str:
+        print("Adapter: request")
+        return self._adaptee.specific_request()
+```
+
+## 桥接模式
+
+```py
+from __future__ import annotations
+from abc import ABC, abstractmethod
+
+
+class Abstraction:
+    def __init__(self, implementation: Implementation) -> None:
+        self._implementation = implementation
+
+    def operation(self) -> str:
+        print("Abstraction: operation")
+        return self._implementation.operation_implementation()
+
+
+class ExtendedAbstraction(Abstraction):
+    def operation(self) -> str:
+        print("ExtendedAbstraction: operation")
+        return super().operation()
+
+
+class Implementation(ABC):
+    @abstractmethod
+    def operation_implementation(self) -> str:
+        pass
+
+
+class ConcreteImplementationA(Implementation):
+    def operation_implementation(self) -> str:
+        return "ConcreteImplementationA: operation_implementation"
+
+
+class ConcreteImplementationB(Implementation):
+    def operation_implementation(self) -> str:
+        return "ConcreteImplementationB: operation_implementation"
+```
+
+## 组合模式
+
+```py
+from __future__ import annotations
+from abc import ABC, abstractmethod
+from typing import List, Optional
+
+
+class Component(ABC):
+    def __init__(self) -> None:
+        self._parent: Optional[Component] = None
+
+    @property
+    def parent(self) -> Optional[Component]:
+        return self._parent
+
+    @parent.setter
+    def parent(self, parent: Component) -> None:
+        self._parent = parent
+
+    def add(self, component: Component) -> None:
+        pass
+
+    def remove(self, component: Component) -> None:
+        pass
+
+    def is_composite(self) -> bool:
+        return False
+
+    @abstractmethod
+    def operation(self) -> str:
+        pass
+
+
+class Leaf(Component):
+
+    def operation(self) -> str:
+        return "Leaf: operation"
+
+
+class Composite(Component):
+
+    def __init__(self) -> None:
+        super().__init__()
+        self._children: List[Component] = []
+
+    def add(self, component: Component) -> None:
+        self._children.append(component)
+        component.parent = self
+
+    def remove(self, component: Component) -> None:
+        self._children.remove(component)
+        component.parent = None
+
+    def is_composite(self) -> bool:
+        return True
+
+    def operation(self) -> str:
+        results = []
+        for child in self._children:
+            results.append(child.operation())
+        return ",".join(results)
+```
+
+## 装饰模式
+
+```py
+from abc import ABC, abstractmethod
+
+
+class Component(ABC):
+    @abstractmethod
+    def operation(self) -> str:
+        pass
+
+
+class ConcreteComponent(Component):
+    def operation(self) -> str:
+        return "ConcreteComponent"
+
+
+class Decorator(Component):
+    def __init__(self, component: Component) -> None:
+        self._component = component
+
+    @abstractmethod
+    def operation(self) -> str:
+        return self._component.operation()
+
+
+class ConcreteDecoratorA(Decorator):
+    def operation(self) -> str:
+        super().operation()
+        return "ConcreteDecoratorA: operation"
+
+
+class ConcreteDecoratorB(Decorator):
+    def operation(self) -> str:
+        super().operation()
+        return "ConcreteDecoratorB: operation"
+```
+
+## 享元模式
+
+```py
+from typing import Dict, List
+
+
+class Flyweight:
+    def __init__(self, shared_state: List[str]) -> None:
+        self._shared_state = shared_state
+
+    def operation(self, unique_state: List[str]) -> None:
+        print(f"Flyweight: operation ({self._shared_state}) ({unique_state})")
+
+
+class FlyweightFactory:
+    def __init__(self, flyweights: List[List[str]]) -> None:
+        self._flyweights: Dict[str, Flyweight] = {}
+        for state in flyweights:
+            self._flyweights[self._get_key(state)] = Flyweight(state)
+
+    def get_flyweight(self, shared_state: List[str]) -> Flyweight:
+        key = self._get_key(shared_state)
+        if not self._flyweights.get(key):
+            self._flyweights[key] = Flyweight(shared_state)
+        return self._flyweights[key]
+
+    def _get_key(self, state: List[str]) -> str:
+        return "_".join(state)
+```
+
+## 代理模式
+
+```py
+from abc import ABC, abstractmethod
+
+
+class Subject(ABC):
+    @abstractmethod
+    def request(self) -> None:
+        pass
+
+
+class RealSubject(Subject):
+    def request(self) -> None:
+        print("RealSubject: request")
+
+
+class Proxy(Subject):
+    def __init__(self, real_subject: RealSubject) -> None:
+        self._real_subject = real_subject
+
+    def request(self) -> None:
+        self._real_subject.request()
+```
+
+## 责任链模式
+
+```py
+from __future__ import annotations
+
+from abc import ABC, abstractmethod
+from typing import Optional
+
+
+class Handler(ABC):
+    @abstractmethod
+    def set_next(self, handler: Handler) -> Handler:
+        pass
+
+    @abstractmethod
+    def handle(self, request: str) -> Optional[str]:
+        pass
+
+
+class BaseHandler(Handler):
+    def __init__(self) -> None:
+        self._next_handler: Optional[Handler] = None
+
+    def set_next(self, handler: Handler) -> Handler:
+        self._next_handler = handler
+        return handler
+
+    @abstractmethod
+    def handle(self, request: str) -> Optional[str]:
+        if self._next_handler:
+            return self._next_handler.handle(request)
+
+        return None
+
+
+class ConcreteHandler1(BaseHandler):
+    def handle(self, request: str) -> Optional[str]:
+        if request == "request1":
+            return f"ConcreteHandler1: {request}"
+        else:
+            return super().handle(request)
+
+
+class ConcreteHandler2(BaseHandler):
+    def handle(self, request: str) -> Optional[str]:
+        if request == "request2":
+            return f"ConcreteHandler2: {request}"
+        else:
+            return super().handle(request)
+
+
+class ConcreteHandler3(BaseHandler):
+    def handle(self, request: str) -> Optional[str]:
+        if request == "request3":
+            return f"ConcreteHandler3: {request}"
+        else:
+            return super().handle(request)
+```
+
+## 命令模式
+
+```py
+from __future__ import annotations
+from abc import ABC, abstractmethod
+from typing import Optional
+
+
+class Command(ABC):
+    @abstractmethod
+    def execute(self) -> None:
+        pass
+
+
+class SimpleCommand(Command):
+    def __init__(self, payload: str) -> None:
+        self._payload = payload
+
+    def execute(self) -> None:
+        print(f"SimpleCommand: execute ({self._payload})")
+
+
+class ComplexCommand(Command):
+    def __init__(self, receiver: Receiver, a: str, b: str) -> None:
+        self._receiver = receiver
+        self._a = a
+        self._b = b
+
+    def execute(self) -> None:
+        print("ComplexCommand: execute")
+        self._receiver.do_something(self._a)
+        self._receiver.do_something_else(self._b)
+
+
+class Receiver:
+    def do_something(self, a: str) -> None:
+        print(f"Receiver: do_something ({a}.)")
+
+    def do_something_else(self, b: str) -> None:
+        print(f"Receiver: do_something_else ({b}.)")
+
+
+class Invoker:
+    def __init__(self) -> None:
+        self._on_start: Optional[Command] = None
+        self._on_finish: Optional[Command] = None
+
+    def set_on_start(self, command: Command) -> None:
+        self._on_start = command
+
+    def set_on_finish(self, command: Command) -> None:
+        self._on_finish = command
+
+    def do_something_important(self) -> None:
+        if isinstance(self._on_start, Command):
+            self._on_start.execute()
+        if isinstance(self._on_finish, Command):
+            self._on_finish.execute()
+```
+
+## 迭代器模式
+
+```py
+from __future__ import annotations
+
+from collections.abc import Iterable, Iterator
+from typing import List
+
+
+class AlphabeticalOrderIterator(Iterator):
+    def __init__(self, collection: WordsCollection, reverse: bool = False) -> None:
+        self._collection = collection
+        self._reverse = reverse
+        self._position = -1 if reverse else 0
+
+    def __next__(self) -> str:
+        try:
+            value = self._collection[self._position]
+            self._position += -1 if self._reverse else 1
+        except IndexError:
+            raise StopIteration()
+
+        return value
+
+
+class WordsCollection(Iterable):
+    def __init__(self, collection: List[str] = []) -> None:
+        self._collection = collection
+
+    def __iter__(self) -> AlphabeticalOrderIterator:
+        return AlphabeticalOrderIterator(self)
+
+    def __getitem__(self, index: int) -> str:
+        return self._collection[index]
+
+    def get_reverse_iterator(self) -> AlphabeticalOrderIterator:
+        return AlphabeticalOrderIterator(self, True)
+
+    def add_item(self, item: str) -> None:
+        self._collection.append(item)
 ```
 
 ## 中介者模式
