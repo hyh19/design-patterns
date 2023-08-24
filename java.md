@@ -625,75 +625,47 @@ private:
 
 ### 责任链模式
 
-```cpp
-#include <iostream>
-#include <string>
-#include <vector>
+```java
+public abstract class Handler {
+    private Handler successor;
 
-class Handler {
-public:
-    virtual Handler *SetNext(Handler *handler) = 0;
-
-    virtual std::string Handle(std::string request) const = 0;
-};
-
-class AbstractHandler : public Handler {
-public:
-    AbstractHandler() : nextHandler(nullptr) {
-    }
-
-    Handler *SetNext(Handler *handler) override {
-        this->nextHandler = handler;
+    public Handler setSuccessor(Handler handler) {
+        successor = handler;
         return handler;
     }
 
-    std::string Handle(std::string request) const override {
-        if (this->nextHandler) {
-            return this->nextHandler->Handle(request);
+    public String handle(String request) {
+        if (successor != null) {
+            return successor.handle(request);
         }
-
-        return {};
+        return null;
     }
-
-private:
-    Handler *nextHandler;
-};
-
-class ConcreteHandler1 : public AbstractHandler {
-public:
-    std::string Handle(std::string request) const override {
-        if (request == "request1") {
-            return "ConcreteHandler1: Handle" + request;
-        } else {
-            return AbstractHandler::Handle(request);
-        }
-    }
-};
-
-class ConcreteHandler2 : public AbstractHandler {
-public:
-    std::string Handle(std::string request) const override {
-        if (request == "request2") {
-            return "ConcreteHandler2: Handle" + request;
-        } else {
-            return AbstractHandler::Handle(request);
-        }
-    }
-};
-
-class ConcreteHandler3 : public AbstractHandler {
-public:
-    std::string Handle(std::string request) const override {
-        if (request == "request3") {
-            return "ConcreteHandler3: Handle" + request;
-        } else {
-            return AbstractHandler::Handle(request);
-        }
-    }
-};
+}
 ```
 
-<!-- 写到这里！ -->
+```java
+public class ConcreteHandler1 extends Handler{
+    @Override
+    public String handle(String request) {
+        if (request.equals("request1")) {
+            return "ConcreteHandler1: handle" + request;
+        }
+        return super.handle(request);
+    }
+}
+```
+
+```java
+public class ConcreteHandler2 extends Handler {
+    @Override
+    public String handle(String request) {
+        if (request.equals("request2")) {
+            return "ConcreteHandler2: handle" + request;
+        }
+        return super.handle(request);
+    }
+}
+```
 
 ### 命令模式
 
