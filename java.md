@@ -1115,45 +1115,41 @@ void ConcreteStateA::Handle1(Context *context) {
 
 ### 策略模式
 
-```cpp
-#include <iostream>
-#include <string>
-#include <algorithm>
-#include <utility>
+```java
+public interface Strategy {
+    void doAlgorithm(int[] data);
+}
+```
 
-class Strategy {
-public:
-    virtual ~Strategy() = default;
+```java
+import java.util.Arrays;
 
-    virtual std::string doAlgorithm(std::string_view data) const = 0;
-};
-
-class Context {
-public:
-    void doSomething(const Strategy *strategy) const {
-        std::string result = strategy->doAlgorithm("aecbd");
-        std::cout << result;
+public class ConcreteStrategyA implements Strategy {
+    @Override
+    public void doAlgorithm(int[] data) {
+        Arrays.sort(data);
     }
-};
+}
+```
 
-class ConcreteStrategyA : public Strategy {
-public:
-    std::string doAlgorithm(std::string_view data) const override {
-        std::string result(data);
-        std::sort(std::begin(result), std::end(result));
+```java
+import java.util.Arrays;
 
-        return result;
+public class ConcreteStrategyB implements Strategy {
+    @Override
+    public void doAlgorithm(int[] data) {
+        Arrays.sort(data);
     }
-};
+}
+```
 
-class ConcreteStrategyB : public Strategy {
-    std::string doAlgorithm(std::string_view data) const override {
-        std::string result(data);
-        std::sort(std::begin(result), std::end(result), std::greater<>());
-
-        return result;
+```java
+public class Context {
+    void doSomething(Strategy strategy) {
+        int[] data = new int[]{1, 2, 3, 4, 5, 6};
+        strategy.doAlgorithm(data);
     }
-};
+}
 ```
 
 ### 模版方法模式
