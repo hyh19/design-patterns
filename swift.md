@@ -489,27 +489,31 @@ class FlyweightFactory:
 ### 代理模式
 
 ```swift
-from abc import ABC, abstractmethod
+protocol Subject {
 
+    func request()
+}
 
-class Subject(ABC):
-    @abstractmethod
-    def request(self) -> None:
-        pass
+class RealSubject: Subject {
 
-
-class RealSubject(Subject):
-    def request(self) -> None:
+    func request() {
         print("RealSubject: request")
+    }
+}
 
+class Proxy: Subject {
 
-class Proxy(Subject):
-    def __init__(self, real_subject: RealSubject) -> None:
-        self._real_subject = real_subject
+    private var realSubject: RealSubject
 
-    def request(self) -> None:
+    init(_ realSubject: RealSubject) {
+        self.realSubject = realSubject
+    }
+
+    func request() {
         print("Proxy: request")
-        self._real_subject.request()
+        realSubject.request()
+    }
+}
 ```
 
 ## 行为模式
@@ -517,120 +521,137 @@ class Proxy(Subject):
 ### 责任链模式
 
 ```swift
-from __future__ import annotations
+protocol Handler: AnyObject {
 
-from abc import ABC, abstractmethod
-from typing import Optional
+    var nextHandler: Handler? { get set }
 
+    @discardableResult
+    func setNext(handler: Handler) -> Handler
 
-class Handler(ABC):
-    @abstractmethod
-    def set_next(self, handler: Handler) -> Handler:
-        pass
+    func handle(request: String) -> String?
+}
 
-    @abstractmethod
-    def handle(self, request: str) -> Optional[str]:
-        pass
+extension Handler {
 
-
-class BaseHandler(Handler):
-    def __init__(self) -> None:
-        self._next_handler: Optional[Handler] = None
-
-    def set_next(self, handler: Handler) -> Handler:
-        self._next_handler = handler
+    func setNext(handler: Handler) -> Handler {
+        self.nextHandler = handler
         return handler
+    }
 
-    @abstractmethod
-    def handle(self, request: str) -> Optional[str]:
-        if self._next_handler:
-            return self._next_handler.handle(request)
+    func handle(request: String) -> String? {
+        return nextHandler?.handle(request: request)
+    }
+}
 
-        return None
+class ConcreteHandler1: Handler {
 
+    var nextHandler: Handler?
 
-class ConcreteHandler1(BaseHandler):
-    def handle(self, request: str) -> Optional[str]:
-        if request == "request1":
-            return f"ConcreteHandler1: {request}"
-        else:
-            return super().handle(request)
+    func handle(request: String) -> String? {
+        if request == "request1" {
+            return "ConcreteHandler1: \(request)"
+        } else {
+            return nextHandler?.handle(request: request)
+        }
+    }
+}
 
+class ConcreteHandler2: Handler {
 
-class ConcreteHandler2(BaseHandler):
-    def handle(self, request: str) -> Optional[str]:
-        if request == "request2":
-            return f"ConcreteHandler2: {request}"
-        else:
-            return super().handle(request)
+    var nextHandler: Handler?
 
+    func handle(request: String) -> String? {
+        if request == "request2" {
+            return "ConcreteHandler2: \(request)"
+        } else {
+            return nextHandler?.handle(request: request)
+        }
+    }
+}
 
-class ConcreteHandler3(BaseHandler):
-    def handle(self, request: str) -> Optional[str]:
-        if request == "request3":
-            return f"ConcreteHandler3: {request}"
-        else:
-            return super().handle(request)
+class ConcreteHandler3: Handler {
+
+    var nextHandler: Handler?
+
+    func handle(request: String) -> String? {
+        if request == "request3" {
+            return "ConcreteHandler3: \(request)"
+        } else {
+            return nextHandler?.handle(request: request)
+        }
+    }
+}
 ```
 
 ### 命令模式
 
 ```swift
-from __future__ import annotations
-from abc import ABC, abstractmethod
-from typing import Optional
+protocol Command {
 
+    func execute()
+}
 
-class Command(ABC):
-    @abstractmethod
-    def execute(self) -> None:
-        pass
+class SimpleCommand: Command {
 
+    private var payload: String
 
-class SimpleCommand(Command):
-    def __init__(self, payload: str) -> None:
-        self._payload = payload
+    init(_ payload: String) {
+        self.payload = payload
+    }
 
-    def execute(self) -> None:
-        print(f"SimpleCommand: execute ({self._payload})")
+    func execute() {
+        print("SimpleCommand: execute (\(payload))")
+    }
+}
 
+class ComplexCommand: Command {
 
-class ComplexCommand(Command):
-    def __init__(self, receiver: Receiver, a: str, b: str) -> None:
-        self._receiver = receiver
-        self._a = a
-        self._b = b
+    private var receiver: Receiver
+    private var a: String
+    private var b: String
 
-    def execute(self) -> None:
+    init(_ receiver: Receiver, _ a: String, _ b: String) {
+        self.receiver = receiver
+        self.a = a
+        self.b = b
+    }
+
+    func execute() {
         print("ComplexCommand: execute")
-        self._receiver.do_something(self._a)
-        self._receiver.do_something_else(self._b)
+        receiver.doSomethingA(a)
+        receiver.doSomethingB(b)
+    }
+}
 
+class Receiver {
 
-class Receiver:
-    def do_something(self, a: str) -> None:
-        print(f"Receiver: do_something ({a}.)")
+    func doSomethingA(_ a: String) {
+        print("Receiver: doSomethingA (\(a)")
+    }
 
-    def do_something_else(self, b: str) -> None:
-        print(f"Receiver: do_something_else ({b}.)")
+    func doSomethingB(_ b: String) {
+        print("Receiver: doSomethingB (\(b))")
+    }
+}
 
+class Invoker {
 
-class Invoker:
-    def __init__(self) -> None:
-        self._on_start: Optional[Command] = None
-        self._on_finish: Optional[Command] = None
+    private var onStart: Command?
+    private var onFinish: Command?
 
-    def set_on_start(self, command: Command) -> None:
-        self._on_start = command
+    func setOnStart(_ command: Command) {
+        onStart = command
+    }
 
-    def set_on_finish(self, command: Command) -> None:
-        self._on_finish = command
+    func setOnFinish(_ command: Command) {
+        onFinish = command
+    }
 
-    def do_something_important(self) -> None:
-        if isinstance(self._on_start, Command):
-            self._on_start.execute()
-        if isinstance(self._on_finish, Command):
-            self._on_finish.execute()
+    func doSomething() {
+        onStart?.execute()
+        onFinish?.execute()
+    }
+}
 ```
 
 ### 迭代器模式
