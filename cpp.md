@@ -251,29 +251,30 @@ public:
 
 ### 原型模式
 
-```php
-<?php
+```cpp
+#include <unordered_map>
 
-class Prototype
-{
-    /**
-     * @var int
-     */
-    public int $primitive;
+class Prototype {
+public:
 
-    /**
-     * @var DateTime
-     */
-    public DateTime $object;
+    virtual ~Prototype() = default;
 
-    /**
-     * @return void
-     */
-    public function __clone(): void
-    {
-        $this->object = clone $this->object;
+    virtual Prototype *Clone() const = 0;
+};
+
+class ConcretePrototype1 : public Prototype {
+public:
+    Prototype *Clone() const override {
+        return new ConcretePrototype1(*this);
     }
-}
+};
+
+class ConcretePrototype2 : public Prototype {
+public:
+    Prototype *Clone() const override {
+        return new ConcretePrototype2(*this);
+    }
+};
 ```
 
 ### 单例模式
@@ -528,7 +529,58 @@ public:
 ### 享元模式
 
 ```cpp
-// TODO
+#include <iostream>
+#include <utility>
+#include <vector>
+#include <unordered_map>
+
+class Flyweight {
+public:
+    explicit Flyweight(std::vector<std::string> sharedState) :
+            _sharedState(std::move(sharedState)) {}
+
+    void Operation(const std::vector<std::string> &uniqueState) const {
+        std::string result;
+        for (const auto &item: _sharedState) {
+            result += item;
+        }
+        for (const auto &item: uniqueState) {
+            result += item;
+        }
+        std::cout << "Flyweight: Operation" << result;
+    }
+
+private:
+    std::vector<std::string> _sharedState;
+};
+
+class FlyweightFactory {
+public:
+    FlyweightFactory(std::initializer_list<std::vector<std::string>> sharedStates) {
+        for (const auto &sharedState: sharedStates) {
+            CreateFlyweight(sharedState);
+        }
+    }
+
+    Flyweight CreateFlyweight(const std::vector<std::string> &sharedState) {
+        std::string key = FlyweightFactory::GetKey(sharedState);
+        if (_flyweights.find(key) == _flyweights.end()) {
+            _flyweights.insert({key, Flyweight(sharedState)});
+        }
+        return _flyweights.at(key);
+    }
+
+private:
+    static std::string GetKey(const std::vector<std::string> &sharedState) {
+        std::string key;
+        for (const auto &item: sharedState) {
+            key += item;
+        }
+        return key;
+    }
+
+    std::unordered_map<std::string, Flyweight> _flyweights;
+};
 ```
 
 ### 代理模式
