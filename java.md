@@ -830,72 +830,73 @@ private:
 
 ### 中介者模式
 
-```cpp
-#include <string>
+```java
+public interface Mediator {
+    void notify(Colleague sender, String event);
+}
+```
 
-class BaseComponent;
+```java
+public class ConcreteMediator implements Mediator {
+    private final ConcreteColleague1 colleague1;
+    private final ConcreteColleague2 colleague2;
 
-class Mediator {
-public:
-    virtual void Notify(BaseComponent *sender, const std::string &event) const = 0;
-};
-
-class BaseComponent {
-public:
-    explicit BaseComponent(Mediator *mediator = nullptr) : _mediator(mediator) {
+    public ConcreteMediator(ConcreteColleague1 colleague1, ConcreteColleague2 colleague2) {
+        this.colleague1 = colleague1;
+        this.colleague2 = colleague2;
+        this.colleague1.mediator = this;
+        this.colleague2.mediator = this;
     }
 
-    void SetMediator(Mediator *mediator) {
-        _mediator = mediator;
-    }
-
-protected:
-    Mediator *_mediator;
-};
-
-class Component1 : public BaseComponent {
-public:
-    void DoA() {
-        _mediator->Notify(this, "A");
-    }
-
-    void DoB() {
-        _mediator->Notify(this, "B");
-    }
-};
-
-class Component2 : public BaseComponent {
-public:
-    void DoC() {
-        _mediator->Notify(this, "C");
-    }
-
-    void DoD() {
-        _mediator->Notify(this, "D");
-    }
-};
-
-class ConcreteMediator : public Mediator {
-public:
-    ConcreteMediator(Component1 *c1, Component2 *c2) : _component1(c1), _component2(c2) {
-        _component1->SetMediator(this);
-        _component2->SetMediator(this);
-    }
-
-    void Notify(BaseComponent *sender, const std::string &event) const override {
-        if (event == "A") {
-            _component2->DoC();
+    @Override
+    public void notify(Colleague sender, String event) {
+        if (event.equals("A")) {
+            colleague2.doC();
         }
-        if (event == "D") {
-            _component1->DoB();
-            _component2->DoC();
+        if (event.equals("D")) {
+            colleague1.doB();
+            colleague2.doC();
         }
     }
+}
+```
 
-private:
-    Component1 *_component1;
-    Component2 *_component2;
-};
+```java
+public abstract class Colleague {
+    protected Mediator mediator;
+
+    public void setMediator(Mediator mediator) {
+        this.mediator = mediator;
+    }
+}
+```
+
+```java
+public class ConcreteColleague1 extends Colleague {
+    public void doA() {
+        System.out.println("ConcreteColleague1: doA");
+        mediator.notify(this, "A");
+    }
+
+    public void doB() {
+        System.out.println("ConcreteColleague1: doB");
+        mediator.notify(this, "B");
+    }
+}
+```
+
+```java
+public class ConcreteColleague2 extends Colleague {
+    public void doC() {
+        System.out.println("ConcreteColleague1: doC");
+        mediator.notify(this, "C");
+    }
+
+    public void doD() {
+        System.out.println("ConcreteColleague1: doD");
+        mediator.notify(this, "D");
+    }
+}
 ```
 
 ### 备忘录模式
