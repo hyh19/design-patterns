@@ -278,48 +278,32 @@ class Prototype
 
 ### 单例模式
 
-```php
-<?php
+```cpp
+#include <string>
 
-class Singleton
-{
-    /**
-     * @var Singleton[]
-     */
-    private static array $instances = [];
+class Singleton {
+public:
+    Singleton(const Singleton &other) = delete;
 
-    protected function __construct()
-    {
+    Singleton &operator=(const Singleton &other) = delete;
+
+    static Singleton *GetInstance();
+
+private:
+    Singleton() = default;
+
+    ~Singleton() = default;
+
+    static Singleton *_singleton;
+};
+
+Singleton *Singleton::_singleton = nullptr;
+
+Singleton *Singleton::GetInstance() {
+    if (_singleton == nullptr) {
+        _singleton = new Singleton();
     }
-
-    /**
-     * @return void
-     */
-    protected function __clone(): void
-    {
-    }
-
-    /**
-     * @return void
-     * @throws Exception
-     */
-    public function __wakeup(): void
-    {
-        throw new Exception("Cannot unserialize a singleton.");
-    }
-
-    /**
-     * @return Singleton
-     */
-    public static function getInstance(): Singleton
-    {
-        $cls = static::class;
-        if (!isset(self::$instances[$cls])) {
-            self::$instances[$cls] = new static();
-        }
-
-        return self::$instances[$cls];
-    }
+    return _singleton;
 }
 ```
 
@@ -414,273 +398,137 @@ public:
 
 ### 组合模式
 
-```php
-<?php
+```cpp
+#include <algorithm>
+#include <list>
+#include <string>
 
-abstract class Component
-{
-    /**
-     * @var Component|null
-     */
-    protected ?Component $parent;
+class Component {
+public:
+    virtual ~Component() = default;
 
-    /**
-     * @param Component|null $parent
-     * @return void
-     */
-    public function setParent(?Component $parent): void
-    {
-        $this->parent = $parent;
+    void SetParent(Component *parent) {
+        _parent = parent;
     }
 
-    /**
-     * @return Component
-     */
-    public function getParent(): Component
-    {
-        return $this->parent;
+    Component *GetParent() const {
+        return _parent;
     }
 
-    /**
-     * @param Component $component
-     * @return void
-     */
-    public function add(Component $component): void
-    {
-    }
+    virtual void Add(Component *component) {}
 
-    /**
-     * @param Component $component
-     * @return void
-     */
-    public function remove(Component $component): void
-    {
-    }
+    virtual void Remove(Component *component) {}
 
-    /**
-     * @return bool
-     */
-    public function isComposite(): bool
-    {
+    virtual bool IsComposite() const {
         return false;
     }
 
-    /**
-     * @return string
-     */
-    abstract public function operation(): string;
-}
+    virtual std::string Operation() const = 0;
 
-class Leaf extends Component
-{
-    /**
-     * @return string
-     */
-    public function operation(): string
-    {
-        return "Leaf";
+private:
+    Component *_parent{};
+};
+
+class Leaf : public Component {
+public:
+    std::string Operation() const override {
+        return "Leaf: Operation";
     }
-}
+};
 
-class Composite extends Component
-{
-    /**
-     * @var SplObjectStorage
-     */
-    protected SplObjectStorage $children;
-
-    public function __construct()
-    {
-        $this->children = new SplObjectStorage();
+class Composite : public Component {
+public:
+    void Add(Component *component) override {
+        _children.push_back(component);
+        component->SetParent(this);
     }
 
-    /**
-     * @param Component $component
-     * @return void
-     */
-    public function add(Component $component): void
-    {
-        $this->children->attach($component);
-        $component->setParent($this);
+    void Remove(Component *component) override {
+        _children.remove(component);
+        component->SetParent(nullptr);
     }
 
-    /**
-     * @param Component $component
-     * @return void
-     */
-    public function remove(Component $component): void
-    {
-        $this->children->detach($component);
-        $component->setParent(null);
-    }
-
-    /**
-     * @return bool
-     */
-    public function isComposite(): bool
-    {
+    bool IsComposite() const override {
         return true;
     }
 
-    /**
-     * @return string
-     */
-    public function operation(): string
-    {
-        $results = [];
-        foreach ($this->children as $child) {
-            $results[] = $child->operation();
+    std::string Operation() const override {
+        std::string result;
+        for (const Component *c: _children) {
+            if (c == _children.back()) {
+                result += c->Operation();
+            } else {
+                result += c->Operation() + "+";
+            }
         }
-
-        return implode(",", $results);
+        return result;
     }
-}
+
+private:
+    std::list<Component *> _children;
+};
 ```
 
 ### 装饰模式
 
-```php
-<?php
+```cpp
+#include <iostream>
+#include <string>
 
-interface Component
-{
-    /**
-     * @return string
-     */
-    public function operation(): string;
-}
+class Component {
+public:
+    virtual ~Component() = default;
 
-class ConcreteComponent implements Component
-{
-    /**
-     * @return string
-     */
-    public function operation(): string
-    {
-        return "ConcreteComponent: operation";
+    virtual std::string Operation() const = 0;
+};
+
+class ConcreteComponent : public Component {
+public:
+    std::string Operation() const override {
+        return "ConcreteComponent: Operation";
     }
-}
+};
 
-class Decorator implements Component
-{
-    /**
-     * @var Component
-     */
-    protected Component $component;
-
-    /**
-     * @param Component $component
-     */
-    public function __construct(Component $component)
-    {
-        $this->component = $component;
+class Decorator : public Component {
+public:
+    explicit Decorator(Component *component) : _component(component) {
     }
 
-    /**
-     * @return string
-     */
-    public function operation(): string
-    {
-        return $this->component->operation();
+    std::string Operation() const override {
+        return _component->Operation();
     }
-}
 
-class ConcreteDecoratorA extends Decorator
-{
-    /**
-     * @return string
-     */
-    public function operation(): string
-    {
-        parent::operation();
-        return "ConcreteDecoratorA: operation";
-    }
-}
+protected:
+    Component *_component;
+};
 
-class ConcreteDecoratorB extends Decorator
-{
-    /**
-     * @return string
-     */
-    public function operation(): string
-    {
-        parent::operation();
-        return "ConcreteDecoratorB: operation";
+class ConcreteDecoratorA : public Decorator {
+public:
+    explicit ConcreteDecoratorA(Component *component) : Decorator(component) {
     }
-}
+
+    std::string Operation() const override {
+        Decorator::Operation();
+        return "ConcreteDecoratorA: Operation";
+    }
+};
+
+class ConcreteDecoratorB : public Decorator {
+public:
+    explicit ConcreteDecoratorB(Component *component) : Decorator(component) {
+    }
+
+    std::string Operation() const override {
+        Decorator::Operation();
+        return "ConcreteDecoratorB: Operation";
+    }
+};
 ```
 
 ### 享元模式
 
-```php
-<?php
-
-class Flyweight
-{
-    /**
-     * @var string[]
-     */
-    private array $sharedState;
-
-    /**
-     * @param string[] $sharedState
-     */
-    public function __construct(array $sharedState)
-    {
-        $this->sharedState = $sharedState;
-    }
-
-    /**
-     * @param string[] $uniqueState
-     * @return void
-     */
-    public function operation(array $uniqueState): void
-    {
-        var_dump($this->sharedState);
-        var_dump($uniqueState);
-        echo "Flyweight: operation";
-    }
-}
-
-class FlyweightFactory
-{
-    /**
-     * @var Flyweight[]
-     */
-    private array $flyweights = [];
-
-    /**
-     * @param string[][] $flyweights
-     */
-    public function __construct(array $flyweights)
-    {
-        foreach ($flyweights as $state) {
-            $this->flyweights[$this->getKey($state)] = new Flyweight($state);
-        }
-    }
-
-    /**
-     * @param string[] $sharedState
-     * @return Flyweight
-     */
-    public function getFlyweight(array $sharedState): Flyweight
-    {
-        $key = $this->getKey($sharedState);
-        if (!isset($this->flyweights[$key])) {
-            $this->flyweights[$key] = new Flyweight($sharedState);
-        }
-        return $this->flyweights[$key];
-    }
-
-    /**
-     * @param string[] $state
-     * @return string
-     */
-    private function getKey(array $state): string
-    {
-        return implode("_", $state);
-    }
-}
+```cpp
+// TODO
 ```
 
 ### 代理模式
