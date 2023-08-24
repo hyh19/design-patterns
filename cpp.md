@@ -685,289 +685,188 @@ class FlyweightFactory
 
 ### 代理模式
 
-```php
-<?php
+```cpp
+#include <iostream>
+#include <utility>
 
-interface Subject
-{
-    /**
-     * @return void
-     */
-    public function request(): void;
-}
+class Subject {
+public:
+    virtual void Request() const = 0;
+};
 
-class RealSubject implements Subject
-{
-    /**
-     * @return void
-     */
-    public function request(): void
-    {
-        echo "RealSubject: request";
+class RealSubject : public Subject {
+public:
+    void Request() const override {
+        std::cout << "RealSubject: Request";
     }
-}
+};
 
-class Proxy implements Subject
-{
-    /**
-     * @var RealSubject
-     */
-    private RealSubject $realSubject;
-
-    /**
-     * @param RealSubject $realSubject
-     */
-    public function __construct(RealSubject $realSubject)
-    {
-        $this->realSubject = $realSubject;
+class Proxy : public Subject {
+public:
+    explicit Proxy(std::shared_ptr<RealSubject> realSubject) : _realSubject(std::move(realSubject)) {
     }
 
-    /**
-     * @return void
-     */
-    public function request(): void
-    {
-        echo "Proxy: request";
-        $this->realSubject->request();
+    void Request() const override {
+        std::cout << "Proxy: Request";
+        _realSubject->Request();
     }
-}
+
+private:
+    std::shared_ptr<RealSubject> _realSubject;
+};
 ```
 
 ## 行为模式
 
 ### 责任链模式
 
-```php
-<?php
+```cpp
+#include <iostream>
+#include <string>
+#include <vector>
 
-interface Handler
-{
-    /**
-     * @param Handler $handler
-     * @return Handler
-     */
-    public function setNext(Handler $handler): Handler;
+class Handler {
+public:
+    virtual Handler *SetNext(Handler *handler) = 0;
 
-    /**
-     * @param string $request
-     * @return string|null
-     */
-    public function handle(string $request): ?string;
-}
+    virtual std::string Handle(std::string request) const = 0;
+};
 
-abstract class BaseHandler implements Handler
-{
-    /**
-     * @var Handler|null
-     */
-    private ?Handler $nextHandler;
-
-    /**
-     * @param Handler $handler
-     * @return Handler
-     */
-    public function setNext(Handler $handler): Handler
-    {
-        $this->nextHandler = $handler;
-        return $handler;
+class AbstractHandler : public Handler {
+public:
+    AbstractHandler() : nextHandler(nullptr) {
     }
 
-    /**
-     * @param string $request
-     * @return string|null
-     */
-    public function handle(string $request): ?string
-    {
-        return $this->nextHandler?->handle($request);
+    Handler *SetNext(Handler *handler) override {
+        this->nextHandler = handler;
+        return handler;
     }
-}
 
-class ConcreteHandler1 extends BaseHandler
-{
-    /**
-     * @param string $request
-     * @return string|null
-     */
-    public function handle(string $request): ?string
-    {
-        if ($request === "request1") {
-            return "ConcreteHandler1:" . $request;
+    std::string Handle(std::string request) const override {
+        if (this->nextHandler) {
+            return this->nextHandler->Handle(request);
+        }
+
+        return {};
+    }
+
+private:
+    Handler *nextHandler;
+};
+
+class ConcreteHandler1 : public AbstractHandler {
+public:
+    std::string Handle(std::string request) const override {
+        if (request == "request1") {
+            return "ConcreteHandler1: Handle" + request;
         } else {
-            return parent::handle($request);
+            return AbstractHandler::Handle(request);
         }
     }
-}
+};
 
-class ConcreteHandler2 extends BaseHandler
-{
-    /**
-     * @param string $request
-     * @return string|null
-     */
-    public function handle(string $request): ?string
-    {
-        if ($request === "request2") {
-            return "ConcreteHandler3:" . $request;
+class ConcreteHandler2 : public AbstractHandler {
+public:
+    std::string Handle(std::string request) const override {
+        if (request == "request2") {
+            return "ConcreteHandler2: Handle" + request;
         } else {
-            return parent::handle($request);
+            return AbstractHandler::Handle(request);
         }
     }
-}
+};
 
-class ConcreteHandler3 extends BaseHandler
-{
-    /**
-     * @param string $request
-     * @return string|null
-     */
-    public function handle(string $request): ?string
-    {
-        if ($request === "request3") {
-            return "ConcreteHandler3:" . $request;
+class ConcreteHandler3 : public AbstractHandler {
+public:
+    std::string Handle(std::string request) const override {
+        if (request == "request3") {
+            return "ConcreteHandler3: Handle" + request;
         } else {
-            return parent::handle($request);
+            return AbstractHandler::Handle(request);
         }
     }
-}
+};
 ```
 
 ### 命令模式
 
-```php
-<?php
+```cpp
+#include <iostream>
+#include <string>
+#include <utility>
 
-interface Command
-{
-    /**
-     * @return void
-     */
-    public function execute(): void;
-}
+class Command {
+public:
+    virtual ~Command() = default;
 
-class SimpleCommand implements Command
-{
-    /**
-     * @var string
-     */
-    private string $payload;
+    virtual void Execute() const = 0;
+};
 
-    /**
-     * @param string $payload
-     */
-    public function __construct(string $payload)
-    {
-        $this->payload = $payload;
+class SimpleCommand : public Command {
+public:
+    explicit SimpleCommand(std::string payLoad) : _payLoad(std::move(payLoad)) {
     }
 
-    /**
-     * @return void
-     */
-    public function execute(): void
-    {
-        echo "SimpleCommand: execute ($this->payload)";
-    }
-}
-
-class ComplexCommand implements Command
-{
-    /**
-     * @var Receiver
-     */
-    private Receiver $receiver;
-
-    /**
-     * @var string
-     */
-    private string $a;
-
-    /**
-     * @var string
-     */
-    private string $b;
-
-    /**
-     * @param Receiver $receiver
-     * @param string $a
-     * @param string $b
-     */
-    public function __construct(Receiver $receiver, string $a, string $b)
-    {
-        $this->receiver = $receiver;
-        $this->a = $a;
-        $this->b = $b;
+    void Execute() const override {
+        std::cout << "SimpleCommand: Execute" + _payLoad;
     }
 
-    /**
-     * @return void
-     */
-    public function execute(): void
-    {
-        echo "ComplexCommand: execute";
-        $this->receiver->doSomethingA($this->a);
-        $this->receiver->doSomethingB($this->b);
-    }
-}
+private:
+    std::string _payLoad;
+};
 
-class Receiver
-{
-    /**
-     * @param string $a
-     * @return void
-     */
-    public function doSomethingA(string $a): void
-    {
-        echo "Receiver: doSomethingA ($a)";
+class Receiver {
+public:
+    void DoSomethingA(const std::string &a) {
+        std::cout << "Receiver: DoSomethingA" + a;
     }
 
-    /**
-     * @param string $b
-     * @return void
-     */
-    public function doSomethingB(string $b): void
-    {
-        echo "Receiver: doSomethingB ($b)";
+    void DoSomethingB(const std::string &b) {
+        std::cout << "Receiver: DoSomethingB" + b;
     }
-}
+};
 
-class Invoker
-{
-    /**
-     * @var Command
-     */
-    private Command $onStart;
-
-    /**
-     * @var Command
-     */
-    private Command $onFinish;
-
-    /**
-     * @param Command $command
-     * @return void
-     */
-    public function setOnStart(Command $command): void
-    {
-        $this->onStart = $command;
+class ComplexCommand : public Command {
+public:
+    ComplexCommand(std::shared_ptr<Receiver> receiver, std::string a, std::string b) :
+            _receiver(std::move(receiver)), _a(std::move(a)), _b(std::move(b)) {
     }
 
-    /**
-     * @param Command $command
-     * @return void
-     */
-    public function setOnFinish(Command $command): void
-    {
-        $this->onFinish = $command;
+    void Execute() const override {
+        std::cout << "ComplexCommand: Execute";
+        _receiver->DoSomethingA(_a);
+        _receiver->DoSomethingB(_b);
     }
 
-    /**
-     * @return void
-     */
-    public function doSomething(): void
-    {
-        $this->onStart->execute();
-        $this->onFinish->execute();
+private:
+    std::shared_ptr<Receiver> _receiver;
+    std::string _a;
+    std::string _b;
+};
+
+class Invoker {
+public:
+    void SetOnStart(std::shared_ptr<Command> command) {
+        _onStart = std::move(command);
     }
-}
+
+    void SetOnFinish(std::shared_ptr<Command> command) {
+        _onFinish = std::move(command);
+    }
+
+    void DoSomething() {
+        if (_onStart) {
+            _onStart->Execute();
+        }
+        if (_onFinish) {
+            _onFinish->Execute();
+        }
+    }
+
+private:
+    std::shared_ptr<Command> _onStart;
+    std::shared_ptr<Command> _onFinish;
+};
 ```
 
 ### 迭代器模式
