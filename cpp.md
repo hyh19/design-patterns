@@ -972,118 +972,56 @@ class Invoker
 
 ### 迭代器模式
 
-```php
-<?php
+```cpp
+#include <iostream>
+#include <vector>
 
-class AlphabeticalOrderIterator implements Iterator
-{
-    /**
-     * @var WordsCollection
-     */
-    private WordsCollection $collection;
-
-    /**
-     * @var int
-     */
-    private int $position = 0;
-
-    /**
-     * @var bool
-     */
-    private bool $reverse;
-
-    /**
-     * @param WordsCollection $collection
-     * @param bool $reverse
-     */
-    public function __construct(WordsCollection $collection, bool $reverse = false)
-    {
-        $this->collection = $collection;
-        $this->reverse = $reverse;
+template<typename ElementType, typename ContainerType>
+class Iterator {
+public:
+    explicit Iterator(ContainerType *container, bool reverse = false) : _container(container) {
+        _position = _container->_elements.begin();
     }
 
-    /**
-     * @return void
-     */
-    public function rewind(): void
-    {
-        $this->position = $this->reverse ?
-            count($this->collection->getItems()) - 1 : 0;
+    void First() {
+        _position = _container->_elements.begin();
     }
 
-    /**
-     * @return string
-     */
-    public function current(): string
-    {
-        return $this->collection->getItems()[$this->position];
+    void Next() {
+        _position++;
     }
 
-    /**
-     * @return int
-     */
-    public function key(): int
-    {
-        return $this->position;
+    bool IsDone() {
+        return _position == _container->_elements.end();
     }
 
-    /**
-     * @return void
-     */
-    public function next(): void
-    {
-        $this->position = $this->position + ($this->reverse ? -1 : 1);
+    ElementType CurrentItem() {
+        return *_position;
     }
 
-    /**
-     * @return bool
-     */
-    public function valid(): bool
-    {
-        return isset($this->collection->getItems()[$this->position]);
-    }
-}
+private:
+    typedef typename std::vector<ElementType>::iterator Position;
 
-class WordsCollection implements IteratorAggregate
-{
-    /**
-     * @var string[]
-     */
-    private array $items = [];
+    ContainerType *_container;
+    Position _position;
+};
 
-    /**
-     * @return string[]
-     */
-    public function getItems(): array
-    {
-        return $this->items;
+template<typename ElementType>
+class Container {
+public:
+    void Add(ElementType element) {
+        _elements.push_back(element);
     }
 
-    /**
-     * @param $item
-     * @return void
-     */
-    public function addItem($item): void
-    {
-        $this->items[] = $item;
+    Iterator<ElementType, Container> *CreateIterator() {
+        return new Iterator<ElementType, Container>(this);
     }
 
-    /**
-     * @return Iterator
-     */
-    public function getIterator(): Iterator
-    {
-        return new AlphabeticalOrderIterator($this);
-    }
+private:
+    std::vector<ElementType> _elements;
 
-    /**
-     * @return Iterator
-     */
-    public function getReverseIterator(): Iterator
-    {
-        return new AlphabeticalOrderIterator($this, true);
-    }
-}
+    friend class Iterator<ElementType, Container>;
+};
 ```
 
 ### 中介者模式
@@ -1158,601 +1096,384 @@ private:
 
 ### 备忘录模式
 
-```php
-<?php
+```cpp
+#include <string>
+#include <utility>
+#include <vector>
 
-class Originator
-{
-    /**
-     * @var string
-     */
-    private string $state;
+class Originator;
 
-    /**
-     * @param string $state
-     */
-    public function __construct(string $state)
-    {
-        $this->state = $state;
+class Memento {
+public:
+    explicit Memento(std::string state) : _state(std::move(state)) {
     }
 
-    /**
-     * @return Memento
-     */
-    public function save(): Memento
-    {
-        return new Memento($this->state);
+    std::string GetState() const {
+        return _state;
     }
 
-    /**
-     * @param Memento $memento
-     * @return void
-     */
-    public function restore(Memento $memento): void
-    {
-        $this->state = $memento->getState();
+private:
+    std::string _state;
+};
+
+class Originator {
+public:
+    explicit Originator(std::string state) : _state(std::move(state)) {
     }
 
-    /**
-     * @return void
-     */
-    public function doSomething(): void
-    {
-        $this->state = $this->generateRandomString(30);
+    const Memento *Save() {
+        return new Memento(_state);
     }
 
-    /**
-     * @param int $length
-     * @return string
-     */
-    private function generateRandomString(int $length = 10): string
-    {
-        return substr(
-            str_shuffle(
-                str_repeat(
-                    $x = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ',
-                    ceil($length / strlen($x))
-                )
-            ),
-            1,
-            $length,
-        );
-    }
-}
-
-class Memento
-{
-    /**
-     * @var string
-     */
-    private string $state;
-
-    /**
-     * @param string $state
-     */
-    public function __construct(string $state)
-    {
-        $this->state = $state;
+    void Restore(const Memento *memento) {
+        _state = memento->GetState();
     }
 
-    /**
-     * @return string
-     */
-    public function getState(): string
-    {
-        return $this->state;
-    }
-}
+private:
+    std::string _state;
+};
 
-class Caretaker
-{
-    /**
-     * @var Memento[]
-     */
-    private array $mementos = [];
-
-    /**
-     * @var Originator
-     */
-    private Originator $originator;
-
-    /**
-     * @param Originator $originator
-     */
-    public function __construct(Originator $originator)
-    {
-        $this->originator = $originator;
+class Caretaker {
+public:
+    explicit Caretaker(Originator *originator) : _originator(originator) {
     }
 
-    /**
-     * @return void
-     */
-    public function backup(): void
-    {
-        $this->mementos[] = $this->originator->save();
+    ~Caretaker() {
+        for (auto memento: _mementos) {
+            delete memento;
+        }
     }
 
-    /**
-     * @return void
-     */
-    public function undo(): void
-    {
-        if (!count($this->mementos)) {
+    void Backup() {
+        _mementos.push_back(_originator->Save());
+    }
+
+    void Undo() {
+        if (_mementos.empty()) {
             return;
         }
 
-        $this->originator->restore(array_pop($this->mementos));
+        const Memento *memento = _mementos.back();
+        _mementos.pop_back();
+        _originator->Restore(memento);
+        delete memento;
     }
-}
+
+private:
+    std::vector<const Memento *> _mementos;
+    Originator *_originator;
+};
 ```
 
 ### 观察者模式
 
-```php
-<?php
+```cpp
+#include <iostream>
+#include <list>
+#include <utility>
 
-class Subject implements SplSubject
-{
-    /**
-     * @var int
-     */
-    private int $state;
+class Observer {
+public:
+    virtual ~Observer() = default;
 
-    /**
-     * @var SplObjectStorage
-     */
-    private SplObjectStorage $observers;
+    virtual void Update(const std::string &state) = 0;
+};
 
-    public function __construct()
-    {
-        $this->observers = new SplObjectStorage();
+class Subject {
+public:
+    virtual ~Subject() = default;
+
+    virtual void Attach(Observer *observer) = 0;
+
+    virtual void Detach(Observer *observer) = 0;
+
+    virtual void Notify() = 0;
+};
+
+class ConcreteSubject : public Subject {
+public:
+    void Attach(Observer *observer) override {
+        _observers.push_back(observer);
     }
 
-    /**
-     * @return int
-     */
-    public function getState(): int
-    {
-        return $this->state;
+    void Detach(Observer *observer) override {
+        _observers.remove(observer);
     }
 
-    /**
-     * @param SplObserver $observer
-     * @return void
-     */
-    public function attach(SplObserver $observer): void
-    {
-        $this->observers->attach($observer);
-    }
-
-    /**
-     * @param SplObserver $observer
-     * @return void
-     */
-    public function detach(SplObserver $observer): void
-    {
-        $this->observers->detach($observer);
-    }
-
-    /**
-     * @return void
-     */
-    public function notify(): void
-    {
-        foreach ($this->observers as $observer) {
-            $observer->update($this);
+    void Notify() override {
+        auto iterator = _observers.begin();
+        while (iterator != _observers.end()) {
+            (*iterator)->Update(_state);
+            ++iterator;
         }
     }
 
-    /**
-     * @return void
-     */
-    public function doSomething(): void
-    {
-        $this->state = rand(0, 10);
-        $this->notify();
+    void doSomething() {
+        _state = "Change State";
+        Notify();
     }
-}
 
-class ConcreteObserverA implements SplObserver
-{
-    /**
-     * @param SplSubject $subject
-     * @return void
-     */
-    public function update(SplSubject $subject): void
-    {
-        echo "ConcreteObserverA: update";
-    }
-}
+private:
+    std::list<Observer *> _observers;
+    std::string _state;
+};
 
-class ConcreteObserverB implements SplObserver
-{
-    /**
-     * @param SplSubject $subject
-     * @return void
-     */
-    public function update(SplSubject $subject): void
-    {
-        echo "ConcreteObserverB: update";
+class ConcreteObserver : public Observer {
+public:
+    explicit ConcreteObserver(ConcreteSubject *subject) : _subject(subject) {
+        _subject->Attach(this);
     }
-}
+
+    ~ConcreteObserver() override {
+        RemoveMeFromTheList();
+    }
+
+    void Update(const std::string &state) override {
+        _state = state;
+    }
+
+    void RemoveMeFromTheList() {
+        if (_subject) {
+            _subject->Detach(this);
+            _subject = nullptr;
+        }
+    }
+
+private:
+    std::string _state;
+    ConcreteSubject *_subject;
+};
 ```
 
 ### 状态模式
 
-```php
-<?php
+```cpp
+#include <iostream>
+#include <utility>
 
-class Context
-{
-    /**
-     * @var State
-     */
-    private State $state;
+class Context;
 
-    /**
-     * @param State $state
-     */
-    public function __construct(State $state)
-    {
-        $this->transitionTo($state);
+class State {
+public:
+    virtual ~State() = default;
+
+    virtual void Handle1(Context *context) = 0;
+
+    virtual void Handle2(Context *context) = 0;
+};
+
+class Context {
+public:
+    explicit Context(std::shared_ptr<State> state) : _state(std::move(state)) {}
+
+    void TransitionTo(std::shared_ptr<State> state) {
+        _state = std::move(state);
     }
 
-    /**
-     * @param State $state
-     * @return void
-     */
-    public function transitionTo(State $state): void
-    {
-        $this->state = $state;
-        $this->state->setContext($this);
+    void Request1() {
+        _state->Handle1(this);
     }
 
-    /**
-     * @return void
-     */
-    public function request1(): void
-    {
-        $this->state->handle1();
+    void Request2() {
+        _state->Handle2(this);
     }
 
-    /**
-     * @return void
-     */
-    public function request2(): void
-    {
-        $this->state->handle2();
+private:
+    std::shared_ptr<State> _state;
+};
+
+class ConcreteStateA : public State {
+public:
+    void Handle1(Context *context) override;
+
+    void Handle2(Context *context) override {
+        std::cout << "ConcreteStateA: Handle2";
     }
-}
+};
 
-abstract class State
-{
-    /**
-     * @var Context
-     */
-    protected Context $context;
-
-    /**
-     * @param Context $context
-     * @return void
-     */
-    public function setContext(Context $context): void
-    {
-        $this->context = $context;
+class ConcreteStateB : public State {
+public:
+    void Handle1(Context *context) override {
+        std::cout << "ConcreteStateB: Handle1";
     }
 
-    /**
-     * @return void
-     */
-    abstract public function handle1(): void;
-
-    /**
-     * @return void
-     */
-    abstract public function handle2(): void;
-}
-
-class ConcreteStateA extends State
-{
-    /**
-     * @return void
-     */
-    public function handle1(): void
-    {
-        echo "ConcreteStateA: handle1";
-        $this->context->transitionTo(new ConcreteStateB());
+    void Handle2(Context *context) override {
+        std::cout << "ConcreteStateB: Handle2";
+        context->TransitionTo(std::make_shared<ConcreteStateA>());
     }
+};
 
-    /**
-     * @return void
-     */
-    public function handle2(): void
-    {
-        echo "ConcreteStateA: handle2";
-    }
-}
-
-class ConcreteStateB extends State
-{
-    /**
-     * @return void
-     */
-    public function handle1(): void
-    {
-        echo "ConcreteStateB: handle1";
-    }
-
-    /**
-     * @return void
-     */
-    public function handle2(): void
-    {
-        echo "ConcreteStateB: handle2";
-        $this->context->transitionTo(new ConcreteStateA());
-    }
+void ConcreteStateA::Handle1(Context *context) {
+    std::cout << "ConcreteStateA: Handle1";
+    context->TransitionTo(std::make_shared<ConcreteStateB>());
 }
 ```
 
 ### 策略模式
 
-```php
-<?php
+```cpp
+#include <iostream>
+#include <string>
+#include <algorithm>
+#include <utility>
 
-class Context
-{
-    public function doSomething(Strategy $strategy): void
-    {
-        $result = $strategy->doAlgorithm(["a", "b", "c", "d", "e"]);
-        echo implode(",", $result);
+class Strategy {
+public:
+    virtual ~Strategy() = default;
+
+    virtual std::string doAlgorithm(std::string_view data) const = 0;
+};
+
+class Context {
+public:
+    void doSomething(const Strategy *strategy) const {
+        std::string result = strategy->doAlgorithm("aecbd");
+        std::cout << result;
     }
-}
+};
 
-interface Strategy
-{
-    /**
-     * @param string[] $data
-     * @return string[]
-     */
-    public function doAlgorithm(array $data): array;
-}
+class ConcreteStrategyA : public Strategy {
+public:
+    std::string doAlgorithm(std::string_view data) const override {
+        std::string result(data);
+        std::sort(std::begin(result), std::end(result));
 
-class ConcreteStrategyA implements Strategy
-{
-    /**
-     * @param string[] $data
-     * @return string[]
-     */
-    public function doAlgorithm(array $data): array
-    {
-        sort($data);
-        return $data;
+        return result;
     }
-}
+};
 
-class ConcreteStrategyB implements Strategy
-{
-    /**
-     * @param string[] $data
-     * @return string[]
-     */
-    public function doAlgorithm(array $data): array
-    {
-        rsort($data);
-        return $data;
+class ConcreteStrategyB : public Strategy {
+    std::string doAlgorithm(std::string_view data) const override {
+        std::string result(data);
+        std::sort(std::begin(result), std::end(result), std::greater<>());
+
+        return result;
     }
-}
+};
 ```
 
 ### 模版方法模式
 
-```php
-<?php
+```cpp
+#include <iostream>
 
-abstract class AbstractClass
-{
-    /**
-     * @return void
-     */
-    final public function templateMethod(): void
-    {
-        $this->baseOperation1();
-        $this->requiredOperation1();
-        $this->baseOperation2();
-        $this->hook1();
-        $this->requiredOperation2();
-        $this->baseOperation3();
-        $this->hook2();
+class AbstractClass {
+public:
+    void TemplateMethod() const {
+        this->BaseOperation1();
+        this->RequiredOperation1();
+        this->BaseOperation2();
+        this->Hook1();
+        this->RequiredOperation2();
+        this->BaseOperation3();
+        this->Hook2();
     }
 
-    /**
-     * @return void
-     */
-    protected function baseOperation1(): void
-    {
-        echo "AbstractClass: baseOperation1";
+protected:
+    void BaseOperation1() const {
+        std::cout << "AbstractClass: BaseOperation1";
     }
 
-    /**
-     * @return void
-     */
-    protected function baseOperation2(): void
-    {
-        echo "AbstractClass: baseOperation2";
+    void BaseOperation2() const {
+        std::cout << "AbstractClass: BaseOperation2";
     }
 
-    /**
-     * @return void
-     */
-    protected function baseOperation3(): void
-    {
-        echo "AbstractClass: baseOperation3";
+    void BaseOperation3() const {
+        std::cout << "AbstractClass: BaseOperation3";
     }
 
-    /**
-     * @return void
-     */
-    abstract protected function requiredOperation1(): void;
+    virtual void RequiredOperation1() const = 0;
 
-    /**
-     * @return void
-     */
-    abstract protected function requiredOperation2(): void;
+    virtual void RequiredOperation2() const = 0;
 
-    /**
-     * @return void
-     */
-    protected function hook1(): void
-    {
+    virtual void Hook1() const {}
+
+    virtual void Hook2() const {}
+};
+
+class ConcreteClass1 : public AbstractClass {
+protected:
+    void RequiredOperation1() const override {
+        std::cout << "ConcreteClass1: RequiredOperation1";
     }
 
-    /**
-     * @return void
-     */
-    protected function hook2(): void
-    {
+    void RequiredOperation2() const override {
+        std::cout << "ConcreteClass1: RequiredOperation2";
     }
-}
+};
 
-class ConcreteClass1 extends AbstractClass
-{
-    /**
-     * @return void
-     */
-    protected function requiredOperation1(): void
-    {
-        echo "ConcreteClass1: requiredOperation1";
+class ConcreteClass2 : public AbstractClass {
+protected:
+    void RequiredOperation1() const override {
+        std::cout << "ConcreteClass2: RequiredOperation1";
     }
 
-    /**
-     * @return void
-     */
-    protected function requiredOperation2(): void
-    {
-        echo "ConcreteClass1: requiredOperation2";
-    }
-}
-
-class ConcreteClass2 extends AbstractClass
-{
-    /**
-     * @return void
-     */
-    protected function requiredOperation1(): void
-    {
-        echo "ConcreteClass2: requiredOperation1";
+    void RequiredOperation2() const override {
+        std::cout << "ConcreteClass2: RequiredOperation2";
     }
 
-    /**
-     * @return void
-     */
-    protected function requiredOperation2(): void
-    {
-        echo "ConcreteClass2: requiredOperation2";
+    void Hook1() const override {
+        std::cout << "ConcreteClass2: Hook1";
     }
-
-    /**
-     * @return void
-     */
-    protected function hook1(): void
-    {
-        echo "ConcreteClass2: hook1";
-    }
-}
+};
 ```
 
 ### 访问者模式
 
-```php
-<?php
+```cpp
+#include <iostream>
 
-interface Component
-{
-    /**
-     * @param Visitor $visitor
-     * @return void
-     */
-    public function accept(Visitor $visitor): void;
-}
+class ConcreteComponentA;
 
-class ConcreteComponentA implements Component
-{
-    /**
-     * @param Visitor $visitor
-     * @return void
-     */
-    public function accept(Visitor $visitor): void
-    {
-        $visitor->visitConcreteComponentA($this);
+class ConcreteComponentB;
+
+class Visitor {
+public:
+    virtual void VisitConcreteComponentA(const ConcreteComponentA *element) const = 0;
+
+    virtual void VisitConcreteComponentB(const ConcreteComponentB *element) const = 0;
+};
+
+class Component {
+public:
+    virtual ~Component() = default;
+
+    virtual void Accept(const Visitor *visitor) const = 0;
+};
+
+class ConcreteComponentA : public Component {
+public:
+    void Accept(const Visitor *visitor) const override {
+        visitor->VisitConcreteComponentA(this);
     }
-}
+};
 
-class ConcreteComponentB implements Component
-{
-    /**
-     * @param Visitor $visitor
-     * @return void
-     */
-    public function accept(Visitor $visitor): void
-    {
-        $visitor->visitConcreteComponentB($this);
+class ConcreteComponentB : public Component {
+public:
+    void Accept(const Visitor *visitor) const override {
+        visitor->VisitConcreteComponentB(this);
     }
-}
+};
 
-interface Visitor
-{
-    /**
-     * @param ConcreteComponentA $element
-     * @return void
-     */
-    public function visitConcreteComponentA(ConcreteComponentA $element): void;
-
-    /**
-     * @param ConcreteComponentB $element
-     * @return void
-     */
-    public function visitConcreteComponentB(ConcreteComponentB $element): void;
-}
-
-class ConcreteVisitor1 implements Visitor
-{
-    /**
-     * @param ConcreteComponentA $element
-     * @return void
-     */
-    public function visitConcreteComponentA(ConcreteComponentA $element): void
-    {
-        echo "ConcreteVisitor2: visitConcreteComponentA";
+class ConcreteVisitor1 : public Visitor {
+public:
+    void VisitConcreteComponentA(const ConcreteComponentA *element) const override {
+        std::cout << "ConcreteVisitor1: VisitConcreteComponentA";
     }
 
-    /**
-     * @param ConcreteComponentB $element
-     * @return void
-     */
-    public function visitConcreteComponentB(ConcreteComponentB $element): void
-    {
-        echo "ConcreteVisitor2: visitConcreteComponentB";
+    void VisitConcreteComponentB(const ConcreteComponentB *element) const override {
+        std::cout << "ConcreteVisitor1: VisitConcreteComponentB";
     }
-}
+};
 
-class ConcreteVisitor2 implements Visitor
-{
-    /**
-     * @param ConcreteComponentA $element
-     * @return void
-     */
-    public function visitConcreteComponentA(ConcreteComponentA $element): void
-    {
-        echo "ConcreteVisitor2: visitConcreteComponentA";
+class ConcreteVisitor2 : public Visitor {
+public:
+    void VisitConcreteComponentA(const ConcreteComponentA *element) const override {
+        std::cout << "ConcreteVisitor2: VisitConcreteComponentA";
     }
 
-    /**
-     * @param ConcreteComponentB $element
-     * @return void
-     */
-    public function visitConcreteComponentB(ConcreteComponentB $element): void
-    {
-        echo "ConcreteVisitor2: visitConcreteComponentB";
+    void VisitConcreteComponentB(const ConcreteComponentB *element) const override {
+        std::cout << "ConcreteVisitor2: VisitConcreteComponentB";
     }
-}
+};
 ```
