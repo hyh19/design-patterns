@@ -1158,68 +1158,60 @@ class ConcreteStrategyB : public Strategy {
 
 ### 模版方法模式
 
-```cpp
-#include <iostream>
+```java
+public abstract class AbstractClass {
 
-class AbstractClass {
-public:
-    void TemplateMethod() const {
-        this->BaseOperation1();
-        this->RequiredOperation1();
-        this->BaseOperation2();
-        this->Hook1();
-        this->RequiredOperation2();
-        this->BaseOperation3();
-        this->Hook2();
+    public final void templateMethod() {
+        baseOperation1();
+        requiredOperation1();
+        baseOperation2();
+        hook1();
+        requiredOperation2();
+        baseOperation3();
+        hook2();
     }
 
-protected:
-    void BaseOperation1() const {
-        std::cout << "AbstractClass: BaseOperation1";
+    protected void baseOperation1() {
+        System.out.println("AbstractClass: baseOperation1");
     }
 
-    void BaseOperation2() const {
-        std::cout << "AbstractClass: BaseOperation2";
+    protected void baseOperation2() {
+        System.out.println("AbstractClass: baseOperation2");
     }
 
-    void BaseOperation3() const {
-        std::cout << "AbstractClass: BaseOperation3";
+    protected void baseOperation3() {
+        System.out.println("AbstractClass: baseOperation3");
     }
 
-    virtual void RequiredOperation1() const = 0;
+    abstract protected void requiredOperation1();
 
-    virtual void RequiredOperation2() const = 0;
+    abstract protected void requiredOperation2();
 
-    virtual void Hook1() const {}
-
-    virtual void Hook2() const {}
-};
-
-class ConcreteClass1 : public AbstractClass {
-protected:
-    void RequiredOperation1() const override {
-        std::cout << "ConcreteClass1: RequiredOperation1";
+    protected void hook1() {
     }
 
-    void RequiredOperation2() const override {
-        std::cout << "ConcreteClass1: RequiredOperation2";
+    protected void hook2() {
     }
-};
+}
+```
 
-class ConcreteClass2 : public AbstractClass {
-protected:
-    void RequiredOperation1() const override {
-        std::cout << "ConcreteClass2: RequiredOperation1";
-    }
-
-    void RequiredOperation2() const override {
-        std::cout << "ConcreteClass2: RequiredOperation2";
+```java
+public class ConcreteClass extends AbstractClass {
+    @Override
+    protected void requiredOperation1() {
+        System.out.println("ConcreteClass: requiredOperation1");
     }
 
-    void Hook1() const override {
-        std::cout << "ConcreteClass2: Hook1";
+    @Override
+    protected void requiredOperation2() {
+        System.out.println("ConcreteClass: requiredOperation2");
     }
-};
+
+    @Override
+    protected void hook1() {
+        System.out.println("ConcreteClass: hook1");
+    }
+}
 ```
 
 ### 访问者模式
