@@ -834,8 +834,7 @@ from typing import Optional
 
 class Context:
     def __init__(self, state: State) -> None:
-        self._state = state
-        self._state.context = self
+        self.transition_to(state)
 
     def transition_to(self, state: State) -> None:
         self._state = state
@@ -897,23 +896,6 @@ from abc import ABC, abstractmethod
 from typing import List
 
 
-class Context:
-    def __init__(self, strategy: Strategy) -> None:
-        self._strategy = strategy
-
-    @property
-    def strategy(self) -> Strategy:
-        return self._strategy
-
-    @strategy.setter
-    def strategy(self, strategy: Strategy) -> None:
-        self._strategy = strategy
-
-    def do_some_business_logic(self) -> None:
-        result = self._strategy.do_algorithm(["a", "b", "c", "d", "e"])
-        print(",".join(result))
-
-
 class Strategy(ABC):
     @abstractmethod
     def do_algorithm(self, data: List[str]) -> List[str]:
@@ -928,6 +910,12 @@ class ConcreteStrategyA(Strategy):
 class ConcreteStrategyB(Strategy):
     def do_algorithm(self, data: List[str]) -> List[str]:
         return sorted(data, reverse=True)
+
+
+class Context:
+    def do_some_business_logic(self, strategy: Strategy) -> None:
+        result = strategy.do_algorithm(["a", "b", "c", "d", "e"])
+        print(",".join(result))
 ```
 
 ### 模版方法模式
@@ -945,8 +933,6 @@ class AbstractClass(ABC):
         self.required_operation2()
         self.base_operation3()
         self.hook2()
-
-    # These operations already have implementations.
 
     def base_operation1(self) -> None:
         print("AbstractClass: base_operation1")
