@@ -1499,262 +1499,470 @@ class Caretaker
 ### 观察者模式
 
 ```php
-from __future__ import annotations
-from abc import ABC, abstractmethod
-from random import randrange
-from typing import List
+<?php
 
+class Subject implements SplSubject
+{
+    /**
+     * @var int
+     */
+    private int $state;
 
-class Subject(ABC):
-    @abstractmethod
-    def attach(self, observer: Observer) -> None:
-        pass
+    /**
+     * @var SplObjectStorage
+     */
+    private SplObjectStorage $observers;
 
-    @abstractmethod
-    def detach(self, observer: Observer) -> None:
-        pass
+    public function __construct()
+    {
+        $this->observers = new SplObjectStorage();
+    }
 
-    @abstractmethod
-    def notify(self) -> None:
-        pass
+    /**
+     * @return int
+     */
+    public function getState(): int
+    {
+        return $this->state;
+    }
 
+    /**
+     * @param SplObserver $observer
+     * @return void
+     */
+    public function attach(SplObserver $observer): void
+    {
+        $this->observers->attach($observer);
+    }
 
-class ConcreteSubject(Subject):
-    def __init__(self) -> None:
-        self._state: int = randrange(0, 10)
-        self._observers: List[Observer] = []
+    /**
+     * @param SplObserver $observer
+     * @return void
+     */
+    public function detach(SplObserver $observer): void
+    {
+        $this->observers->detach($observer);
+    }
 
-    def attach(self, observer: Observer) -> None:
-        self._observers.append(observer)
+    /**
+     * @return void
+     */
+    public function notify(): void
+    {
+        foreach ($this->observers as $observer) {
+            $observer->update($this);
+        }
+    }
 
-    def detach(self, observer: Observer) -> None:
-        self._observers.remove(observer)
+    /**
+     * @return void
+     */
+    public function doSomething(): void
+    {
+        $this->state = rand(0, 10);
+        $this->notify();
+    }
+}
 
-    def notify(self) -> None:
-        for observer in self._observers:
-            observer.update(self._state)
+class ConcreteObserverA implements SplObserver
+{
+    /**
+     * @param SplSubject $subject
+     * @return void
+     */
+    public function update(SplSubject $subject): void
+    {
+        echo "ConcreteObserverA: update";
+    }
+}
 
-    def some_business_logic(self) -> None:
-        self._state = randrange(0, 10)
-        self.notify()
-
-
-class Observer(ABC):
-    @abstractmethod
-    def update(self, state: int) -> None:
-        pass
-
-
-class ConcreteObserverA(Observer):
-    def update(self, state: int) -> None:
-        print("ConcreteObserverA: update")
-
-
-class ConcreteObserverB(Observer):
-    def update(self, state: int) -> None:
-        print("ConcreteObserverB: update")
+class ConcreteObserverB implements SplObserver
+{
+    /**
+     * @param SplSubject $subject
+     * @return void
+     */
+    public function update(SplSubject $subject): void
+    {
+        echo "ConcreteObserverB: update";
+    }
+}
 ```
 
 ### 状态模式
 
 ```php
-from __future__ import annotations
-from abc import ABC, abstractmethod
-from typing import Optional
+<?php
 
+class Context
+{
+    /**
+     * @var State
+     */
+    private State $state;
 
-class Context:
-    def __init__(self, state: State) -> None:
-        self.transition_to(state)
+    /**
+     * @param State $state
+     */
+    public function __construct(State $state)
+    {
+        $this->transitionTo($state);
+    }
 
-    def transition_to(self, state: State) -> None:
-        self._state = state
-        self._state.context = self
+    /**
+     * @param State $state
+     * @return void
+     */
+    public function transitionTo(State $state): void
+    {
+        $this->state = $state;
+        $this->state->setContext($this);
+    }
 
-    def request1(self) -> None:
-        self._state.handle1()
+    /**
+     * @return void
+     */
+    public function request1(): void
+    {
+        $this->state->handle1();
+    }
 
-    def request2(self) -> None:
-        self._state.handle2()
+    /**
+     * @return void
+     */
+    public function request2(): void
+    {
+        $this->state->handle2();
+    }
+}
 
+abstract class State
+{
+    /**
+     * @var Context
+     */
+    protected Context $context;
 
-class State(ABC):
-    def __init__(self) -> None:
-        self._context: Optional[Context] = None
+    /**
+     * @param Context $context
+     * @return void
+     */
+    public function setContext(Context $context): void
+    {
+        $this->context = $context;
+    }
 
-    @property
-    def context(self) -> Optional[Context]:
-        return self._context
+    /**
+     * @return void
+     */
+    abstract public function handle1(): void;
 
-    @context.setter
-    def context(self, context: Context) -> None:
-        self._context = context
+    /**
+     * @return void
+     */
+    abstract public function handle2(): void;
+}
 
-    @abstractmethod
-    def handle1(self) -> None:
-        pass
+class ConcreteStateA extends State
+{
+    /**
+     * @return void
+     */
+    public function handle1(): void
+    {
+        echo "ConcreteStateA: handle1";
+        $this->context->transitionTo(new ConcreteStateB());
+    }
 
-    @abstractmethod
-    def handle2(self) -> None:
-        pass
+    /**
+     * @return void
+     */
+    public function handle2(): void
+    {
+        echo "ConcreteStateA: handle2";
+    }
+}
 
+class ConcreteStateB extends State
+{
+    /**
+     * @return void
+     */
+    public function handle1(): void
+    {
+        echo "ConcreteStateB: handle1";
+    }
 
-class ConcreteStateA(State):
-    def handle1(self) -> None:
-        print("ConcreteStateA handle1")
-        assert self.context is not None
-        self.context.transition_to(ConcreteStateB())
-
-    def handle2(self) -> None:
-        print("ConcreteStateA handle2")
-
-
-class ConcreteStateB(State):
-    def handle1(self) -> None:
-        print("ConcreteStateB handle1")
-
-    def handle2(self) -> None:
-        print("ConcreteStateB handle2")
-        assert self.context is not None
-        self.context.transition_to(ConcreteStateA())
+    /**
+     * @return void
+     */
+    public function handle2(): void
+    {
+        echo "ConcreteStateB: handle2";
+        $this->context->transitionTo(new ConcreteStateA());
+    }
+}
 ```
 
 ### 策略模式
 
 ```php
-from __future__ import annotations
-from abc import ABC, abstractmethod
-from typing import List
+<?php
 
+class Context
+{
+    public function doSomething(Strategy $strategy): void
+    {
+        $result = $strategy->doAlgorithm(["a", "b", "c", "d", "e"]);
+        echo implode(",", $result);
+    }
+}
 
-class Strategy(ABC):
-    @abstractmethod
-    def do_algorithm(self, data: List[str]) -> List[str]:
-        pass
+interface Strategy
+{
+    /**
+     * @param string[] $data
+     * @return string[]
+     */
+    public function doAlgorithm(array $data): array;
+}
 
+class ConcreteStrategyA implements Strategy
+{
+    /**
+     * @param string[] $data
+     * @return string[]
+     */
+    public function doAlgorithm(array $data): array
+    {
+        sort($data);
+        return $data;
+    }
+}
 
-class ConcreteStrategyA(Strategy):
-    def do_algorithm(self, data: List[str]) -> List[str]:
-        return sorted(data)
-
-
-class ConcreteStrategyB(Strategy):
-    def do_algorithm(self, data: List[str]) -> List[str]:
-        return sorted(data, reverse=True)
-
-
-class Context:
-    def do_some_business_logic(self, strategy: Strategy) -> None:
-        result = strategy.do_algorithm(["a", "b", "c", "d", "e"])
-        print(",".join(result))
+class ConcreteStrategyB implements Strategy
+{
+    /**
+     * @param string[] $data
+     * @return string[]
+     */
+    public function doAlgorithm(array $data): array
+    {
+        rsort($data);
+        return $data;
+    }
+}
 ```
 
 ### 模版方法模式
 
 ```php
-from abc import ABC, abstractmethod
+<?php
 
+abstract class AbstractClass
+{
+    /**
+     * @return void
+     */
+    final public function templateMethod(): void
+    {
+        $this->baseOperation1();
+        $this->requiredOperation1();
+        $this->baseOperation2();
+        $this->hook1();
+        $this->requiredOperation2();
+        $this->baseOperation3();
+        $this->hook2();
+    }
 
-class AbstractClass(ABC):
-    def template_method(self) -> None:
-        self.base_operation1()
-        self.required_operation1()
-        self.base_operation2()
-        self.hook1()
-        self.required_operation2()
-        self.base_operation3()
-        self.hook2()
+    /**
+     * @return void
+     */
+    protected function baseOperation1(): void
+    {
+        echo "AbstractClass: baseOperation1";
+    }
 
-    def base_operation1(self) -> None:
-        print("AbstractClass: base_operation1")
+    /**
+     * @return void
+     */
+    protected function baseOperation2(): void
+    {
+        echo "AbstractClass: baseOperation2";
+    }
 
-    def base_operation2(self) -> None:
-        print("AbstractClass: base_operation2")
+    /**
+     * @return void
+     */
+    protected function baseOperation3(): void
+    {
+        echo "AbstractClass: baseOperation3";
+    }
 
-    def base_operation3(self) -> None:
-        print("AbstractClass: base_operation3")
+    /**
+     * @return void
+     */
+    abstract protected function requiredOperation1(): void;
 
-    @abstractmethod
-    def required_operation1(self) -> None:
-        pass
+    /**
+     * @return void
+     */
+    abstract protected function requiredOperation2(): void;
 
-    @abstractmethod
-    def required_operation2(self) -> None:
-        pass
+    /**
+     * @return void
+     */
+    protected function hook1(): void
+    {
+    }
 
-    def hook1(self) -> None:
-        pass
+    /**
+     * @return void
+     */
+    protected function hook2(): void
+    {
+    }
+}
 
-    def hook2(self) -> None:
-        pass
+class ConcreteClass1 extends AbstractClass
+{
+    /**
+     * @return void
+     */
+    protected function requiredOperation1(): void
+    {
+        echo "ConcreteClass1: requiredOperation1";
+    }
 
+    /**
+     * @return void
+     */
+    protected function requiredOperation2(): void
+    {
+        echo "ConcreteClass1: requiredOperation2";
+    }
+}
 
-class ConcreteClass1(AbstractClass):
-    def required_operation1(self) -> None:
-        print("ConcreteClass1: required_operation1")
+class ConcreteClass2 extends AbstractClass
+{
+    /**
+     * @return void
+     */
+    protected function requiredOperation1(): void
+    {
+        echo "ConcreteClass2: requiredOperation1";
+    }
 
-    def required_operation2(self) -> None:
-        print("ConcreteClass1: required_operation2")
+    /**
+     * @return void
+     */
+    protected function requiredOperation2(): void
+    {
+        echo "ConcreteClass2: requiredOperation2";
+    }
 
-
-class ConcreteClass2(AbstractClass):
-    def required_operation1(self) -> None:
-        print("ConcreteClass2: required_operation1")
-
-    def required_operation2(self) -> None:
-        print("ConcreteClass2: required_operation2")
-
-    def hook1(self) -> None:
-        print("ConcreteClass2: hook1")
+    /**
+     * @return void
+     */
+    protected function hook1(): void
+    {
+        echo "ConcreteClass2: hook1";
+    }
+}
 ```
 
 ### 访问者模式
 
 ```php
-from __future__ import annotations
-from abc import ABC, abstractmethod
-from typing import List
+<?php
 
+interface Component
+{
+    /**
+     * @param Visitor $visitor
+     * @return void
+     */
+    public function accept(Visitor $visitor): void;
+}
 
-class Component(ABC):
-    @abstractmethod
-    def accept(self, visitor: Visitor) -> None:
-        pass
+class ConcreteComponentA implements Component
+{
+    /**
+     * @param Visitor $visitor
+     * @return void
+     */
+    public function accept(Visitor $visitor): void
+    {
+        $visitor->visitConcreteComponentA($this);
+    }
+}
 
+class ConcreteComponentB implements Component
+{
+    /**
+     * @param Visitor $visitor
+     * @return void
+     */
+    public function accept(Visitor $visitor): void
+    {
+        $visitor->visitConcreteComponentB($this);
+    }
+}
 
-class ConcreteComponentA(Component):
-    def accept(self, visitor: Visitor) -> None:
-        visitor.visit_concrete_component_a(self)
+interface Visitor
+{
+    /**
+     * @param ConcreteComponentA $element
+     * @return void
+     */
+    public function visitConcreteComponentA(ConcreteComponentA $element): void;
 
+    /**
+     * @param ConcreteComponentB $element
+     * @return void
+     */
+    public function visitConcreteComponentB(ConcreteComponentB $element): void;
+}
 
-class ConcreteComponentB(Component):
-    def accept(self, visitor: Visitor):
-        visitor.visit_concrete_component_b(self)
+class ConcreteVisitor1 implements Visitor
+{
+    /**
+     * @param ConcreteComponentA $element
+     * @return void
+     */
+    public function visitConcreteComponentA(ConcreteComponentA $element): void
+    {
+        echo "ConcreteVisitor2: visitConcreteComponentA";
+    }
 
+    /**
+     * @param ConcreteComponentB $element
+     * @return void
+     */
+    public function visitConcreteComponentB(ConcreteComponentB $element): void
+    {
+        echo "ConcreteVisitor2: visitConcreteComponentB";
+    }
+}
 
-class Visitor(ABC):
+class ConcreteVisitor2 implements Visitor
+{
+    /**
+     * @param ConcreteComponentA $element
+     * @return void
+     */
+    public function visitConcreteComponentA(ConcreteComponentA $element): void
+    {
+        echo "ConcreteVisitor2: visitConcreteComponentA";
+    }
 
-    @abstractmethod
-    def visit_concrete_component_a(self, element: ConcreteComponentA) -> None:
-        pass
-
-    @abstractmethod
-    def visit_concrete_component_b(self, element: ConcreteComponentB) -> None:
-        pass
-
-
-class ConcreteVisitor1(Visitor):
-    def visit_concrete_component_a(self, element: ConcreteComponentA) -> None:
-        print("ConcreteVisitor1: visit_concrete_component_a")
-
-    def visit_concrete_component_b(self, element: ConcreteComponentB) -> None:
-        print("ConcreteVisitor1: visit_concrete_component_b")
-
-
-class ConcreteVisitor2(Visitor):
-    def visit_concrete_component_a(self, element: ConcreteComponentA) -> None:
-        print("ConcreteVisitor2: visit_concrete_component_a")
-
-    def visit_concrete_component_b(self, element: ConcreteComponentB) -> None:
-        print("ConcreteVisitor2: visit_concrete_component_b")
+    /**
+     * @param ConcreteComponentB $element
+     * @return void
+     */
+    public function visitConcreteComponentB(ConcreteComponentB $element): void
+    {
+        echo "ConcreteVisitor2: visitConcreteComponentB";
+    }
+}
 ```
