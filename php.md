@@ -365,53 +365,76 @@ class Director
 
 ### 原型模式
 
-```py
-from __future__ import annotations
-import copy
-from typing import List, Optional, Dict
+```php
+<?php
 
+class Prototype
+{
+    /**
+     * @var int
+     */
+    public int $primitive;
 
-class Component:
-    def __init__(self, some_int: int, some_list_of_objects: List) -> None:
-        self.some_int = some_int
-        self.some_list_of_objects = some_list_of_objects
+    /**
+     * @var DateTime
+     */
+    public DateTime $object;
 
-    def __copy__(self) -> Component:
-        some_list_of_objects = copy.copy(self.some_list_of_objects)
-        new = self.__class__(self.some_int, some_list_of_objects)
-
-        return new
-
-    def __deepcopy__(self, memo: Optional[Dict] = None) -> Component:
-        if memo is None:
-            memo = {}
-
-        some_list_of_objects = copy.deepcopy(self.some_list_of_objects, memo)
-        new = self.__class__(self.some_int, some_list_of_objects)
-
-        return new
+    /**
+     * @return void
+     */
+    public function __clone(): void
+    {
+        $this->object = clone $this->object;
+    }
+}
 ```
 
 ### 单例模式
 
-```py
-from __future__ import annotations
-from typing import Dict, Any
+```php
+<?php
 
+class Singleton
+{
+    /**
+     * @var Singleton[]
+     */
+    private static array $instances = [];
 
-class SingletonMeta(type):
-    _instances: Dict[SingletonMeta, Any] = {}
+    protected function __construct()
+    {
+    }
 
-    def __call__(cls, *args, **kwargs):
-        if cls not in SingletonMeta._instances:
-            instance = super().__call__(*args, **kwargs)
-            SingletonMeta._instances[cls] = instance
-        return SingletonMeta._instances[cls]
+    /**
+     * @return void
+     */
+    protected function __clone(): void
+    {
+    }
 
+    /**
+     * @return void
+     * @throws Exception
+     */
+    public function __wakeup(): void
+    {
+        throw new Exception("Cannot unserialize a singleton.");
+    }
 
-class Singleton(metaclass=SingletonMeta):
-    def some_business_logic(self):
-        print("Singleton: some_business_logic")
+    /**
+     * @return Singleton
+     */
+    public static function getInstance(): Singleton
+    {
+        $cls = static::class;
+        if (!isset(self::$instances[$cls])) {
+            self::$instances[$cls] = new static();
+        }
+
+        return self::$instances[$cls];
+    }
+}
 ```
 
 ## 结构型模式
@@ -546,445 +569,936 @@ class ConcreteImplementationB implements Implementation
 
 ### 组合模式
 
-```py
-from __future__ import annotations
-from abc import ABC, abstractmethod
-from typing import List, Optional
+```php
+<?php
 
+abstract class Component
+{
+    /**
+     * @var Component|null
+     */
+    protected ?Component $parent;
 
-class Component(ABC):
-    def __init__(self) -> None:
-        self._parent: Optional[Component] = None
+    /**
+     * @param Component|null $parent
+     * @return void
+     */
+    public function setParent(?Component $parent): void
+    {
+        $this->parent = $parent;
+    }
 
-    @property
-    def parent(self) -> Optional[Component]:
-        return self._parent
+    /**
+     * @return Component
+     */
+    public function getParent(): Component
+    {
+        return $this->parent;
+    }
 
-    @parent.setter
-    def parent(self, parent: Component) -> None:
-        self._parent = parent
+    /**
+     * @param Component $component
+     * @return void
+     */
+    public function add(Component $component): void
+    {
+    }
 
-    def add(self, component: Component) -> None:
-        pass
+    /**
+     * @param Component $component
+     * @return void
+     */
+    public function remove(Component $component): void
+    {
+    }
 
-    def remove(self, component: Component) -> None:
-        pass
+    /**
+     * @return bool
+     */
+    public function isComposite(): bool
+    {
+        return false;
+    }
 
-    def is_composite(self) -> bool:
-        return False
+    /**
+     * @return string
+     */
+    abstract public function operation(): string;
+}
 
-    @abstractmethod
-    def operation(self) -> str:
-        pass
+class Leaf extends Component
+{
+    /**
+     * @return string
+     */
+    public function operation(): string
+    {
+        return "Leaf";
+    }
+}
 
+class Composite extends Component
+{
+    /**
+     * @var SplObjectStorage
+     */
+    protected SplObjectStorage $children;
 
-class Leaf(Component):
+    public function __construct()
+    {
+        $this->children = new SplObjectStorage();
+    }
 
-    def operation(self) -> str:
-        return "Leaf: operation"
+    /**
+     * @param Component $component
+     * @return void
+     */
+    public function add(Component $component): void
+    {
+        $this->children->attach($component);
+        $component->setParent($this);
+    }
 
+    /**
+     * @param Component $component
+     * @return void
+     */
+    public function remove(Component $component): void
+    {
+        $this->children->detach($component);
+        $component->setParent(null);
+    }
 
-class Composite(Component):
+    /**
+     * @return bool
+     */
+    public function isComposite(): bool
+    {
+        return true;
+    }
 
-    def __init__(self) -> None:
-        super().__init__()
-        self._children: List[Component] = []
+    /**
+     * @return string
+     */
+    public function operation(): string
+    {
+        $results = [];
+        foreach ($this->children as $child) {
+            $results[] = $child->operation();
+        }
 
-    def add(self, component: Component) -> None:
-        self._children.append(component)
-        component.parent = self
-
-    def remove(self, component: Component) -> None:
-        self._children.remove(component)
-        component.parent = None
-
-    def is_composite(self) -> bool:
-        return True
-
-    def operation(self) -> str:
-        results = []
-        for child in self._children:
-            results.append(child.operation())
-        return ",".join(results)
+        return implode(",", $results);
+    }
+}
 ```
 
 ### 装饰模式
 
-```py
-from abc import ABC, abstractmethod
+```php
+<?php
 
+interface Component
+{
+    /**
+     * @return string
+     */
+    public function operation(): string;
+}
 
-class Component(ABC):
-    @abstractmethod
-    def operation(self) -> str:
-        pass
+class ConcreteComponent implements Component
+{
+    /**
+     * @return string
+     */
+    public function operation(): string
+    {
+        return "ConcreteComponent: operation";
+    }
+}
 
+class Decorator implements Component
+{
+    /**
+     * @var Component
+     */
+    protected Component $component;
 
-class ConcreteComponent(Component):
-    def operation(self) -> str:
-        return "ConcreteComponent: operation"
+    /**
+     * @param Component $component
+     */
+    public function __construct(Component $component)
+    {
+        $this->component = $component;
+    }
 
+    /**
+     * @return string
+     */
+    public function operation(): string
+    {
+        return $this->component->operation();
+    }
+}
 
-class Decorator(Component):
-    def __init__(self, component: Component) -> None:
-        self._component = component
+class ConcreteDecoratorA extends Decorator
+{
+    /**
+     * @return string
+     */
+    public function operation(): string
+    {
+        parent::operation();
+        return "ConcreteDecoratorA: operation";
+    }
+}
 
-    @abstractmethod
-    def operation(self) -> str:
-        return self._component.operation()
-
-
-class ConcreteDecoratorA(Decorator):
-    def operation(self) -> str:
-        super().operation()
-        return "ConcreteDecoratorA: operation"
-
-
-class ConcreteDecoratorB(Decorator):
-    def operation(self) -> str:
-        super().operation()
-        return "ConcreteDecoratorB: operation"
+class ConcreteDecoratorB extends Decorator
+{
+    /**
+     * @return string
+     */
+    public function operation(): string
+    {
+        parent::operation();
+        return "ConcreteDecoratorB: operation";
+    }
+}
 ```
 
 ### 享元模式
 
-```py
-from typing import Dict, List
+```php
+<?php
 
+class Flyweight
+{
+    /**
+     * @var string[]
+     */
+    private array $sharedState;
 
-class Flyweight:
-    def __init__(self, shared_state: List[str]) -> None:
-        self._shared_state = shared_state
+    /**
+     * @param string[] $sharedState
+     */
+    public function __construct(array $sharedState)
+    {
+        $this->sharedState = $sharedState;
+    }
 
-    def operation(self, unique_state: List[str]) -> None:
-        print(f"Flyweight: operation ({self._shared_state}) ({unique_state})")
+    /**
+     * @param string[] $uniqueState
+     * @return void
+     */
+    public function operation(array $uniqueState): void
+    {
+        var_dump($this->sharedState);
+        var_dump($uniqueState);
+        echo "Flyweight: operation";
+    }
+}
 
+class FlyweightFactory
+{
+    /**
+     * @var Flyweight[]
+     */
+    private array $flyweights = [];
 
-class FlyweightFactory:
-    def __init__(self, flyweights: List[List[str]]) -> None:
-        self._flyweights: Dict[str, Flyweight] = {}
-        for state in flyweights:
-            self._flyweights[self._get_key(state)] = Flyweight(state)
+    /**
+     * @param string[][] $flyweights
+     */
+    public function __construct(array $flyweights)
+    {
+        foreach ($flyweights as $state) {
+            $this->flyweights[$this->getKey($state)] = new Flyweight($state);
+        }
+    }
 
-    def get_flyweight(self, shared_state: List[str]) -> Flyweight:
-        key = self._get_key(shared_state)
-        if not self._flyweights.get(key):
-            self._flyweights[key] = Flyweight(shared_state)
-        return self._flyweights[key]
+    /**
+     * @param string[] $sharedState
+     * @return Flyweight
+     */
+    public function getFlyweight(array $sharedState): Flyweight
+    {
+        $key = $this->getKey($sharedState);
+        if (!isset($this->flyweights[$key])) {
+            $this->flyweights[$key] = new Flyweight($sharedState);
+        }
+        return $this->flyweights[$key];
+    }
 
-    def _get_key(self, state: List[str]) -> str:
-        return "_".join(state)
+    /**
+     * @param string[] $state
+     * @return string
+     */
+    private function getKey(array $state): string
+    {
+        return implode("_", $state);
+    }
+}
 ```
 
 ### 代理模式
 
-```py
-from abc import ABC, abstractmethod
+```php
+<?php
 
+interface Subject
+{
+    /**
+     * @return void
+     */
+    public function request(): void;
+}
 
-class Subject(ABC):
-    @abstractmethod
-    def request(self) -> None:
-        pass
+class RealSubject implements Subject
+{
+    /**
+     * @return void
+     */
+    public function request(): void
+    {
+        echo "RealSubject: request";
+    }
+}
 
+class Proxy implements Subject
+{
+    /**
+     * @var RealSubject
+     */
+    private RealSubject $realSubject;
 
-class RealSubject(Subject):
-    def request(self) -> None:
-        print("RealSubject: request")
+    /**
+     * @param RealSubject $realSubject
+     */
+    public function __construct(RealSubject $realSubject)
+    {
+        $this->realSubject = $realSubject;
+    }
 
-
-class Proxy(Subject):
-    def __init__(self, real_subject: RealSubject) -> None:
-        self._real_subject = real_subject
-
-    def request(self) -> None:
-        print("Proxy: request")
-        self._real_subject.request()
+    /**
+     * @return void
+     */
+    public function request(): void
+    {
+        echo "Proxy: request";
+        $this->realSubject->request();
+    }
+}
 ```
 
 ## 行为模式
 
 ### 责任链模式
 
-```py
-from __future__ import annotations
+```php
+<?php
 
-from abc import ABC, abstractmethod
-from typing import Optional
+interface Handler
+{
+    /**
+     * @param Handler $handler
+     * @return Handler
+     */
+    public function setNext(Handler $handler): Handler;
 
+    /**
+     * @param string $request
+     * @return string|null
+     */
+    public function handle(string $request): ?string;
+}
 
-class Handler(ABC):
-    @abstractmethod
-    def set_next(self, handler: Handler) -> Handler:
-        pass
+abstract class BaseHandler implements Handler
+{
+    /**
+     * @var Handler|null
+     */
+    private ?Handler $nextHandler;
 
-    @abstractmethod
-    def handle(self, request: str) -> Optional[str]:
-        pass
+    /**
+     * @param Handler $handler
+     * @return Handler
+     */
+    public function setNext(Handler $handler): Handler
+    {
+        $this->nextHandler = $handler;
+        return $handler;
+    }
 
+    /**
+     * @param string $request
+     * @return string|null
+     */
+    public function handle(string $request): ?string
+    {
+        return $this->nextHandler?->handle($request);
+    }
+}
 
-class BaseHandler(Handler):
-    def __init__(self) -> None:
-        self._next_handler: Optional[Handler] = None
+class ConcreteHandler1 extends BaseHandler
+{
+    /**
+     * @param string $request
+     * @return string|null
+     */
+    public function handle(string $request): ?string
+    {
+        if ($request === "request1") {
+            return "ConcreteHandler1:" . $request;
+        } else {
+            return parent::handle($request);
+        }
+    }
+}
 
-    def set_next(self, handler: Handler) -> Handler:
-        self._next_handler = handler
-        return handler
+class ConcreteHandler2 extends BaseHandler
+{
+    /**
+     * @param string $request
+     * @return string|null
+     */
+    public function handle(string $request): ?string
+    {
+        if ($request === "request2") {
+            return "ConcreteHandler3:" . $request;
+        } else {
+            return parent::handle($request);
+        }
+    }
+}
 
-    @abstractmethod
-    def handle(self, request: str) -> Optional[str]:
-        if self._next_handler:
-            return self._next_handler.handle(request)
-
-        return None
-
-
-class ConcreteHandler1(BaseHandler):
-    def handle(self, request: str) -> Optional[str]:
-        if request == "request1":
-            return f"ConcreteHandler1: {request}"
-        else:
-            return super().handle(request)
-
-
-class ConcreteHandler2(BaseHandler):
-    def handle(self, request: str) -> Optional[str]:
-        if request == "request2":
-            return f"ConcreteHandler2: {request}"
-        else:
-            return super().handle(request)
-
-
-class ConcreteHandler3(BaseHandler):
-    def handle(self, request: str) -> Optional[str]:
-        if request == "request3":
-            return f"ConcreteHandler3: {request}"
-        else:
-            return super().handle(request)
+class ConcreteHandler3 extends BaseHandler
+{
+    /**
+     * @param string $request
+     * @return string|null
+     */
+    public function handle(string $request): ?string
+    {
+        if ($request === "request3") {
+            return "ConcreteHandler3:" . $request;
+        } else {
+            return parent::handle($request);
+        }
+    }
+}
 ```
 
 ### 命令模式
 
-```py
-from __future__ import annotations
-from abc import ABC, abstractmethod
-from typing import Optional
+```php
+<?php
 
+interface Command
+{
+    /**
+     * @return void
+     */
+    public function execute(): void;
+}
 
-class Command(ABC):
-    @abstractmethod
-    def execute(self) -> None:
-        pass
+class SimpleCommand implements Command
+{
+    /**
+     * @var string
+     */
+    private string $payload;
 
+    /**
+     * @param string $payload
+     */
+    public function __construct(string $payload)
+    {
+        $this->payload = $payload;
+    }
 
-class SimpleCommand(Command):
-    def __init__(self, payload: str) -> None:
-        self._payload = payload
+    /**
+     * @return void
+     */
+    public function execute(): void
+    {
+        echo "SimpleCommand: execute ($this->payload)";
+    }
+}
 
-    def execute(self) -> None:
-        print(f"SimpleCommand: execute ({self._payload})")
+class ComplexCommand implements Command
+{
+    /**
+     * @var Receiver
+     */
+    private Receiver $receiver;
 
+    /**
+     * @var string
+     */
+    private string $a;
 
-class ComplexCommand(Command):
-    def __init__(self, receiver: Receiver, a: str, b: str) -> None:
-        self._receiver = receiver
-        self._a = a
-        self._b = b
+    /**
+     * @var string
+     */
+    private string $b;
 
-    def execute(self) -> None:
-        print("ComplexCommand: execute")
-        self._receiver.do_something(self._a)
-        self._receiver.do_something_else(self._b)
+    /**
+     * @param Receiver $receiver
+     * @param string $a
+     * @param string $b
+     */
+    public function __construct(Receiver $receiver, string $a, string $b)
+    {
+        $this->receiver = $receiver;
+        $this->a = $a;
+        $this->b = $b;
+    }
 
+    /**
+     * @return void
+     */
+    public function execute(): void
+    {
+        echo "ComplexCommand: execute";
+        $this->receiver->doSomethingA($this->a);
+        $this->receiver->doSomethingB($this->b);
+    }
+}
 
-class Receiver:
-    def do_something(self, a: str) -> None:
-        print(f"Receiver: do_something ({a}.)")
+class Receiver
+{
+    /**
+     * @param string $a
+     * @return void
+     */
+    public function doSomethingA(string $a): void
+    {
+        echo "Receiver: doSomethingA ($a)";
+    }
 
-    def do_something_else(self, b: str) -> None:
-        print(f"Receiver: do_something_else ({b}.)")
+    /**
+     * @param string $b
+     * @return void
+     */
+    public function doSomethingB(string $b): void
+    {
+        echo "Receiver: doSomethingB ($b)";
+    }
+}
 
+class Invoker
+{
+    /**
+     * @var Command
+     */
+    private Command $onStart;
 
-class Invoker:
-    def __init__(self) -> None:
-        self._on_start: Optional[Command] = None
-        self._on_finish: Optional[Command] = None
+    /**
+     * @var Command
+     */
+    private Command $onFinish;
 
-    def set_on_start(self, command: Command) -> None:
-        self._on_start = command
+    /**
+     * @param Command $command
+     * @return void
+     */
+    public function setOnStart(Command $command): void
+    {
+        $this->onStart = $command;
+    }
 
-    def set_on_finish(self, command: Command) -> None:
-        self._on_finish = command
+    /**
+     * @param Command $command
+     * @return void
+     */
+    public function setOnFinish(Command $command): void
+    {
+        $this->onFinish = $command;
+    }
 
-    def do_something_important(self) -> None:
-        if isinstance(self._on_start, Command):
-            self._on_start.execute()
-        if isinstance(self._on_finish, Command):
-            self._on_finish.execute()
+    /**
+     * @return void
+     */
+    public function doSomething(): void
+    {
+        $this->onStart->execute();
+        $this->onFinish->execute();
+    }
+}
 ```
 
 ### 迭代器模式
 
-```py
-from __future__ import annotations
+```php
+<?php
 
-from collections.abc import Iterable, Iterator
-from typing import List
+class AlphabeticalOrderIterator implements Iterator
+{
+    /**
+     * @var WordsCollection
+     */
+    private WordsCollection $collection;
 
+    /**
+     * @var int
+     */
+    private int $position = 0;
 
-class AlphabeticalOrderIterator(Iterator):
-    def __init__(self, collection: WordsCollection, reverse: bool = False) -> None:
-        self._collection = collection
-        self._reverse = reverse
-        self._position = -1 if reverse else 0
+    /**
+     * @var bool
+     */
+    private bool $reverse;
 
-    def __next__(self) -> str:
-        try:
-            value = self._collection[self._position]
-            self._position += -1 if self._reverse else 1
-        except IndexError:
-            raise StopIteration()
+    /**
+     * @param WordsCollection $collection
+     * @param bool $reverse
+     */
+    public function __construct(WordsCollection $collection, bool $reverse = false)
+    {
+        $this->collection = $collection;
+        $this->reverse = $reverse;
+    }
 
-        return value
+    /**
+     * @return void
+     */
+    public function rewind(): void
+    {
+        $this->position = $this->reverse ?
+            count($this->collection->getItems()) - 1 : 0;
+    }
 
+    /**
+     * @return string
+     */
+    public function current(): string
+    {
+        return $this->collection->getItems()[$this->position];
+    }
 
-class WordsCollection(Iterable):
-    def __init__(self, collection: List[str] = []) -> None:
-        self._collection = collection
+    /**
+     * @return int
+     */
+    public function key(): int
+    {
+        return $this->position;
+    }
 
-    def __iter__(self) -> AlphabeticalOrderIterator:
-        return AlphabeticalOrderIterator(self)
+    /**
+     * @return void
+     */
+    public function next(): void
+    {
+        $this->position = $this->position + ($this->reverse ? -1 : 1);
+    }
 
-    def __getitem__(self, index: int) -> str:
-        return self._collection[index]
+    /**
+     * @return bool
+     */
+    public function valid(): bool
+    {
+        return isset($this->collection->getItems()[$this->position]);
+    }
+}
 
-    def get_reverse_iterator(self) -> AlphabeticalOrderIterator:
-        return AlphabeticalOrderIterator(self, True)
+class WordsCollection implements IteratorAggregate
+{
+    /**
+     * @var string[]
+     */
+    private array $items = [];
 
-    def add_item(self, item: str) -> None:
-        self._collection.append(item)
+    /**
+     * @return string[]
+     */
+    public function getItems(): array
+    {
+        return $this->items;
+    }
+
+    /**
+     * @param $item
+     * @return void
+     */
+    public function addItem($item): void
+    {
+        $this->items[] = $item;
+    }
+
+    /**
+     * @return Iterator
+     */
+    public function getIterator(): Iterator
+    {
+        return new AlphabeticalOrderIterator($this);
+    }
+
+    /**
+     * @return Iterator
+     */
+    public function getReverseIterator(): Iterator
+    {
+        return new AlphabeticalOrderIterator($this, true);
+    }
+}
 ```
 
 ### 中介者模式
 
-```py
-from __future__ import annotations
-from abc import ABC, abstractmethod
-from typing import Optional
+```php
+<?php
 
+interface Mediator
+{
+    /**
+     * @param Component $sender
+     * @param string $event
+     * @return void
+     */
+    public function notify(Component $sender, string $event): void;
+}
 
-class Mediator(ABC):
-    @abstractmethod
-    def notify(self, sender: Component, event: str) -> None:
-        pass
+class ConcreteMediator implements Mediator
+{
+    /**
+     * @var ConcreteComponent1
+     */
+    private ConcreteComponent1 $component1;
 
+    /**
+     * @var ConcreteComponent2
+     */
+    private ConcreteComponent2 $component2;
 
-class ConcreteMediator(Mediator):
-    def __init__(self, component1: ConcreteComponent1, component2: ConcreteComponent2) -> None:
-        self._component1 = component1
-        self._component2 = component2
-        self._component1.mediator = self
-        self._component2.mediator = self
+    /**
+     * @param ConcreteComponent1 $c1
+     * @param ConcreteComponent2 $c2
+     */
+    public function __construct(ConcreteComponent1 $c1, ConcreteComponent2 $c2)
+    {
+        $this->component1 = $c1;
+        $this->component2 = $c2;
+        $this->component1->setMediator($this);
+        $this->component2->setMediator($this);
+    }
 
-    def notify(self, sender: Component, event: str) -> None:
-        if event == "A":
-            self._component2.do_c()
-        elif event == "D":
-            self._component1.do_b()
-            self._component2.do_c()
+    /**
+     * @param Component $sender
+     * @param string $event
+     * @return void
+     */
+    public function notify(Component $sender, string $event): void
+    {
+        if ($event == "A") {
+            $this->component2->doC();
+        }
 
+        if ($event == "D") {
+            $this->component1->doB();
+            $this->component2->doC();
+        }
+    }
+}
 
-class Component(ABC):
-    def __init__(self, mediator: Optional[Mediator] = None) -> None:
-        self._mediator = mediator
+abstract class Component
+{
+    /**
+     * @var Mediator|null
+     */
+    protected ?Mediator $mediator;
 
-    @property
-    def mediator(self) -> Optional[Mediator]:
-        return self._mediator
+    /**
+     * @param Mediator|null $mediator
+     */
+    public function __construct(Mediator $mediator = null)
+    {
+        $this->mediator = $mediator;
+    }
 
-    @mediator.setter
-    def mediator(self, mediator: Mediator) -> None:
-        self._mediator = mediator
+    /**
+     * @param Mediator $mediator
+     * @return void
+     */
+    public function setMediator(Mediator $mediator): void
+    {
+        $this->mediator = $mediator;
+    }
+}
 
+class ConcreteComponent1 extends Component
+{
+    /**
+     * @return void
+     */
+    public function doA(): void
+    {
+        echo "ConcreteComponent1: doA";
+        $this->mediator->notify($this, "A");
+    }
 
-class ConcreteComponent1(Component):
-    def do_a(self) -> None:
-        print("ConcreteComponent1: do_a")
-        assert self.mediator is not None
-        self.mediator.notify(self, "A")
+    /**
+     * @return void
+     */
+    public function doB(): void
+    {
+        echo "ConcreteComponent1: doB";
+        $this->mediator->notify($this, "B");
+    }
+}
 
-    def do_b(self) -> None:
-        print("ConcreteComponent1: do_b")
-        assert self.mediator is not None
-        self.mediator.notify(self, "B")
+class ConcreteComponent2 extends Component
+{
+    /**
+     * @return void
+     */
+    public function doC(): void
+    {
+        echo "ConcreteComponent2: doC";
+        $this->mediator->notify($this, "C");
+    }
 
-
-class ConcreteComponent2(Component):
-    def do_c(self) -> None:
-        print("ConcreteComponent2: do_c")
-        assert self.mediator is not None
-        self.mediator.notify(self, "C")
-
-    def do_d(self) -> None:
-        print("ConcreteComponent2: do_d")
-        assert self.mediator is not None
-        self.mediator.notify(self, "D")
-
+    /**
+     * @return void
+     */
+    public function doD(): void
+    {
+        echo "ConcreteComponent2: doD";
+        $this->mediator->notify($this, "D");
+    }
+}
 ```
 
 ### 备忘录模式
 
-```py
-from __future__ import annotations
-from random import sample
-from string import ascii_letters
-from typing import List
+```php
+<?php
 
+class Originator
+{
+    /**
+     * @var string
+     */
+    private string $state;
 
-class Originator:
-    def __init__(self, state: str) -> None:
-        self._state = state
+    /**
+     * @param string $state
+     */
+    public function __construct(string $state)
+    {
+        $this->state = $state;
+    }
 
-    def do_something(self) -> None:
-        self._state = self._generate_random_string(30)
+    /**
+     * @return Memento
+     */
+    public function save(): Memento
+    {
+        return new Memento($this->state);
+    }
 
-    def save(self) -> Memento:
-        return Memento(self._state)
+    /**
+     * @param Memento $memento
+     * @return void
+     */
+    public function restore(Memento $memento): void
+    {
+        $this->state = $memento->getState();
+    }
 
-    def restore(self, memento: Memento) -> None:
-        self._state = memento.state
+    /**
+     * @return void
+     */
+    public function doSomething(): void
+    {
+        $this->state = $this->generateRandomString(30);
+    }
 
-    def _generate_random_string(self, length: int = 10) -> str:
-        return "".join(sample(ascii_letters, length))
+    /**
+     * @param int $length
+     * @return string
+     */
+    private function generateRandomString(int $length = 10): string
+    {
+        return substr(
+            str_shuffle(
+                str_repeat(
+                    $x = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ',
+                    ceil($length / strlen($x))
+                )
+            ),
+            1,
+            $length,
+        );
+    }
+}
 
+class Memento
+{
+    /**
+     * @var string
+     */
+    private string $state;
 
-class Memento:
-    def __init__(self, state: str) -> None:
-        self._state = state
+    /**
+     * @param string $state
+     */
+    public function __construct(string $state)
+    {
+        $this->state = $state;
+    }
 
-    @property
-    def state(self) -> str:
-        return self._state
+    /**
+     * @return string
+     */
+    public function getState(): string
+    {
+        return $this->state;
+    }
+}
 
+class Caretaker
+{
+    /**
+     * @var Memento[]
+     */
+    private array $mementos = [];
 
-class Caretaker:
-    def __init__(self, originator: Originator) -> None:
-        self._mementos: List[Memento] = []
-        self._originator = originator
+    /**
+     * @var Originator
+     */
+    private Originator $originator;
 
-    def backup(self) -> None:
-        self._mementos.append(self._originator.save())
+    /**
+     * @param Originator $originator
+     */
+    public function __construct(Originator $originator)
+    {
+        $this->originator = $originator;
+    }
 
-    def undo(self) -> None:
-        if not len(self._mementos):
-            return
+    /**
+     * @return void
+     */
+    public function backup(): void
+    {
+        $this->mementos[] = $this->originator->save();
+    }
 
-        self._originator.restore(self._mementos.pop())
+    /**
+     * @return void
+     */
+    public function undo(): void
+    {
+        if (!count($this->mementos)) {
+            return;
+        }
+
+        $this->originator->restore(array_pop($this->mementos));
+    }
+}
 ```
 
 ### 观察者模式
 
-```py
+```php
 from __future__ import annotations
 from abc import ABC, abstractmethod
 from random import randrange
@@ -1043,7 +1557,7 @@ class ConcreteObserverB(Observer):
 
 ### 状态模式
 
-```py
+```php
 from __future__ import annotations
 from abc import ABC, abstractmethod
 from typing import Optional
@@ -1107,7 +1621,7 @@ class ConcreteStateB(State):
 
 ### 策略模式
 
-```py
+```php
 from __future__ import annotations
 from abc import ABC, abstractmethod
 from typing import List
@@ -1137,7 +1651,7 @@ class Context:
 
 ### 模版方法模式
 
-```py
+```php
 from abc import ABC, abstractmethod
 
 
@@ -1196,7 +1710,7 @@ class ConcreteClass2(AbstractClass):
 
 ### 访问者模式
 
-```py
+```php
 from __future__ import annotations
 from abc import ABC, abstractmethod
 from typing import List
