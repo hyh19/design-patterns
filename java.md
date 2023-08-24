@@ -1051,65 +1051,63 @@ private:
 
 ### 状态模式
 
-```cpp
-#include <iostream>
-#include <utility>
+```java
+public interface State {
+    void handle1(Context context);
 
-class Context;
+    void handle2(Context context);
+}
+```
 
-class State {
-public:
-    virtual ~State() = default;
-
-    virtual void Handle1(Context *context) = 0;
-
-    virtual void Handle2(Context *context) = 0;
-};
-
-class Context {
-public:
-    explicit Context(std::shared_ptr<State> state) : _state(std::move(state)) {}
-
-    void TransitionTo(std::shared_ptr<State> state) {
-        _state = std::move(state);
+```java
+public class ConcreteStateA implements State {
+    @Override
+    public void handle1(Context context) {
+        System.out.println("ConcreteStateA: handle1");
+        context.transitionTo(new ConcreteStateB());
     }
 
-    void Request1() {
-        _state->Handle1(this);
+    @Override
+    public void handle2(Context context) {
+        System.out.println("ConcreteStateA: handle2");
+    }
+}
+```
+
+```java
+public class ConcreteStateB implements State {
+    @Override
+    public void handle1(Context context) {
+        System.out.println("ConcreteStateB: handle1");
     }
 
-    void Request2() {
-        _state->Handle2(this);
+    @Override
+    public void handle2(Context context) {
+        System.out.println("ConcreteStateB: handle2");
+        context.transitionTo(new ConcreteStateA());
+    }
+}
+```
+
+```java
+public class Context {
+    private State state;
+
+    public Context(State state) {
+        transitionTo(state);
     }
 
-private:
-    std::shared_ptr<State> _state;
-};
-
-class ConcreteStateA : public State {
-public:
-    void Handle1(Context *context) override;
-
-    void Handle2(Context *context) override {
-        std::cout << "ConcreteStateA: Handle2";
-    }
-};
-
-class ConcreteStateB : public State {
-public:
-    void Handle1(Context *context) override {
-        std::cout << "ConcreteStateB: Handle1";
+    public void transitionTo(State state) {
+        this.state = state;
     }
 
-    void Handle2(Context *context) override {
-        std::cout << "ConcreteStateB: Handle2";
-        context->TransitionTo(std::make_shared<ConcreteStateA>());
+    public void request1() {
+        state.handle1(this);
     }
-};
 
-void ConcreteStateA::Handle1(Context *context) {
-    std::cout << "ConcreteStateA: Handle1";
-    context->TransitionTo(std::make_shared<ConcreteStateB>());
+    public void request2() {
+        state.handle2(this);
+    }
 }
 ```
 
