@@ -745,204 +745,210 @@ class ConcreteComponent2(Component):
 ### 备忘录模式
 
 ```swift
-from __future__ import annotations
-from random import sample
-from string import ascii_letters
-from typing import List
+class Originator {
 
+    private var state: String
 
-class Originator:
-    def __init__(self, state: str) -> None:
-        self._state = state
+    init(state: String) {
+        self.state = state
+    }
 
-    def do_something(self) -> None:
-        self._state = self._generate_random_string(30)
+    func save() -> Memento {
+        return Memento(state: state)
+    }
 
-    def save(self) -> Memento:
-        return Memento(self._state)
+    func restore(memento: Memento) {
+        self.state = memento.state
+    }
+}
 
-    def restore(self, memento: Memento) -> None:
-        self._state = memento.state
+class Memento {
 
-    def _generate_random_string(self, length: int = 10) -> str:
-        return "".join(sample(ascii_letters, length))
+    private(set) var state: String
 
+    init(state: String) {
+        self.state = state
+    }
+}
 
-class Memento:
-    def __init__(self, state: str) -> None:
-        self._state = state
+class Caretaker {
 
-    @property
-    def state(self) -> str:
-        return self._state
+    private lazy var mementos = [Memento]()
+    private var originator: Originator
 
+    init(originator: Originator) {
+        self.originator = originator
+    }
 
-class Caretaker:
-    def __init__(self, originator: Originator) -> None:
-        self._mementos: List[Memento] = []
-        self._originator = originator
+    func backup() {
+        mementos.append(originator.save())
+    }
 
-    def backup(self) -> None:
-        self._mementos.append(self._originator.save())
-
-    def undo(self) -> None:
-        if not len(self._mementos):
+    func undo() {
+        guard !mementos.isEmpty else {
             return
-
-        self._originator.restore(self._mementos.pop())
+        }
+        originator.restore(memento: mementos.removeLast())
+    }
+}
 ```
 
 ### 观察者模式
 
 ```swift
-from __future__ import annotations
-from abc import ABC, abstractmethod
-from random import randrange
-from typing import List
+class Subject {
 
+    var state: Int = {
+        return Int(arc4random_uniform(10))
+    }()
 
-class Subject(ABC):
-    @abstractmethod
-    def attach(self, observer: Observer) -> None:
-        pass
+    private lazy var observers = [Observer]()
 
-    @abstractmethod
-    def detach(self, observer: Observer) -> None:
-        pass
+    func attach(_ observer: Observer) {
+        observers.append(observer)
+    }
 
-    @abstractmethod
-    def notify(self) -> None:
-        pass
+    func detach(_ observer: Observer) {
+        if let idx = observers.firstIndex(where: { $0 === observer }) {
+            observers.remove(at: idx)
+        }
+    }
 
+    func notify() {
+        observers.forEach {
+            $0.update(subject: self)
+        }
+    }
 
-class ConcreteSubject(Subject):
-    def __init__(self) -> None:
-        self._state: int = randrange(0, 10)
-        self._observers: List[Observer] = []
+    func someBusinessLogic() {
+        state = Int(arc4random_uniform(10))
+        notify()
+    }
+}
 
-    def attach(self, observer: Observer) -> None:
-        self._observers.append(observer)
+protocol Observer: AnyObject {
 
-    def detach(self, observer: Observer) -> None:
-        self._observers.remove(observer)
+    func update(subject: Subject)
+}
 
-    def notify(self) -> None:
-        for observer in self._observers:
-            observer.update(self._state)
+class ConcreteObserverA: Observer {
 
-    def some_business_logic(self) -> None:
-        self._state = randrange(0, 10)
-        self.notify()
-
-
-class Observer(ABC):
-    @abstractmethod
-    def update(self, state: int) -> None:
-        pass
-
-
-class ConcreteObserverA(Observer):
-    def update(self, state: int) -> None:
+    func update(subject: Subject) {
         print("ConcreteObserverA: update")
+    }
+}
 
+class ConcreteObserverB: Observer {
 
-class ConcreteObserverB(Observer):
-    def update(self, state: int) -> None:
+    func update(subject: Subject) {
         print("ConcreteObserverB: update")
+    }
+}
 ```
 
 ### 状态模式
 
 ```swift
-from __future__ import annotations
-from abc import ABC, abstractmethod
-from typing import Optional
+class Context {
 
+    private var state: State
 
-class Context:
-    def __init__(self, state: State) -> None:
-        self.transition_to(state)
+    init(_ state: State) {
+        self.state = state
+        transitionTo(state: state)
+    }
 
-    def transition_to(self, state: State) -> None:
-        self._state = state
-        self._state.context = self
+    func transitionTo(state: State) {
+        self.state = state
+        self.state.update(context: self)
+    }
 
-    def request1(self) -> None:
-        self._state.handle1()
+    func request1() {
+        state.handle1()
+    }
 
-    def request2(self) -> None:
-        self._state.handle2()
+    func request2() {
+        state.handle2()
+    }
+}
 
+protocol State: AnyObject {
 
-class State(ABC):
-    def __init__(self) -> None:
-        self._context: Optional[Context] = None
+    func update(context: Context)
 
-    @property
-    def context(self) -> Optional[Context]:
-        return self._context
+    func handle1()
+    func handle2()
+}
 
-    @context.setter
-    def context(self, context: Context) -> None:
-        self._context = context
+class BaseState: State {
 
-    @abstractmethod
-    def handle1(self) -> None:
-        pass
+    private(set) weak var context: Context?
 
-    @abstractmethod
-    def handle2(self) -> None:
-        pass
+    func update(context: Context) {
+        self.context = context
+    }
 
+    func handle1() {
+    }
 
-class ConcreteStateA(State):
-    def handle1(self) -> None:
-        print("ConcreteStateA handle1")
-        assert self.context is not None
-        self.context.transition_to(ConcreteStateB())
+    func handle2() {
+    }
+}
 
-    def handle2(self) -> None:
-        print("ConcreteStateA handle2")
+class ConcreteStateA: BaseState {
 
+    override func handle1() {
+        print("ConcreteStateA: handle1")
+        context?.transitionTo(state: ConcreteStateB())
+    }
 
-class ConcreteStateB(State):
-    def handle1(self) -> None:
-        print("ConcreteStateB handle1")
+    override func handle2() {
+        print("ConcreteStateA: handle2")
+    }
+}
 
-    def handle2(self) -> None:
-        print("ConcreteStateB handle2")
-        assert self.context is not None
-        self.context.transition_to(ConcreteStateA())
+class ConcreteStateB: BaseState {
+
+    override func handle1() {
+        print("ConcreteStateB: handle1")
+    }
+
+    override func handle2() {
+        print("ConcreteStateB: handle2")
+        context?.transitionTo(state: ConcreteStateA())
+    }
+}
 ```
 
 ### 策略模式
 
 ```swift
-from __future__ import annotations
-from abc import ABC, abstractmethod
-from typing import List
+class Context {
 
+    func doSomething(strategy: Strategy) {
+        let result = strategy.doAlgorithm(["a", "b", "c", "d", "e"])
+        print(result.joined(separator: ","))
+    }
+}
 
-class Strategy(ABC):
-    @abstractmethod
-    def do_algorithm(self, data: List[str]) -> List[str]:
-        pass
+protocol Strategy {
 
+    func doAlgorithm<T: Comparable>(_ data: [T]) -> [T]
+}
 
-class ConcreteStrategyA(Strategy):
-    def do_algorithm(self, data: List[str]) -> List[str]:
-        return sorted(data)
+class ConcreteStrategyA: Strategy {
 
+    func doAlgorithm<T: Comparable>(_ data: [T]) -> [T] {
+        return data.sorted()
+    }
+}
 
-class ConcreteStrategyB(Strategy):
-    def do_algorithm(self, data: List[str]) -> List[str]:
-        return sorted(data, reverse=True)
+class ConcreteStrategyB: Strategy {
 
-
-class Context:
-    def do_some_business_logic(self, strategy: Strategy) -> None:
-        result = strategy.do_algorithm(["a", "b", "c", "d", "e"])
-        print(",".join(result))
+    func doAlgorithm<T: Comparable>(_ data: [T]) -> [T] {
+        return data.sorted(by: >)
+    }
+}
 ```
 
 ### 模版方法模式
