@@ -971,82 +971,61 @@ private:
 
 ### 观察者模式
 
-```cpp
-#include <iostream>
-#include <list>
-#include <utility>
+```java
+import java.util.ArrayList;
+import java.util.List;
 
-class Observer {
-public:
-    virtual ~Observer() = default;
+public abstract class Subject {
+    protected List<Observer> observers = new ArrayList<>();
 
-    virtual void Update(const std::string &state) = 0;
-};
-
-class Subject {
-public:
-    virtual ~Subject() = default;
-
-    virtual void Attach(Observer *observer) = 0;
-
-    virtual void Detach(Observer *observer) = 0;
-
-    virtual void Notify() = 0;
-};
-
-class ConcreteSubject : public Subject {
-public:
-    void Attach(Observer *observer) override {
-        _observers.push_back(observer);
+    public void attach(Observer observer) {
+        observers.add(observer);
     }
 
-    void Detach(Observer *observer) override {
-        _observers.remove(observer);
+    public void detach(Observer observer) {
+        observers.remove(observer);
     }
 
-    void Notify() override {
-        auto iterator = _observers.begin();
-        while (iterator != _observers.end()) {
-            (*iterator)->Update(_state);
-            ++iterator;
+    public void notify(String dummy) {
+        for (Observer observer : observers) {
+            observer.update(this);
         }
     }
+}
+```
 
-    void doSomething() {
-        _state = "Change State";
-        Notify();
+```java
+public interface Observer {
+    void update(Subject subject);
+}
+```
+
+```java
+import java.util.Random;
+
+public class ConcreteSubject extends Subject {
+    private int state;
+
+    public int getState() {
+        return state;
     }
 
-private:
-    std::list<Observer *> _observers;
-    std::string _state;
-};
-
-class ConcreteObserver : public Observer {
-public:
-    explicit ConcreteObserver(ConcreteSubject *subject) : _subject(subject) {
-        _subject->Attach(this);
+    public void doSomething() {
+        Random random = new Random();
+        state = random.nextInt();
+        notify(null);
     }
+}
+```
 
-    ~ConcreteObserver() override {
-        RemoveMeFromTheList();
+```java
+public class ConcreteObserver implements Observer {
+    @Override
+    public void update(Subject subject) {
+        ConcreteSubject concreteSubject = (ConcreteSubject) subject;
+        System.out.println("ConcreteObserver: update" + concreteSubject.getState());
     }
-
-    void Update(const std::string &state) override {
-        _state = state;
-    }
-
-    void RemoveMeFromTheList() {
-        if (_subject) {
-            _subject->Detach(this);
-            _subject = nullptr;
-        }
-    }
-
-private:
-    std::string _state;
-    ConcreteSubject *_subject;
-};
+}
 ```
 
 ### 状态模式
