@@ -693,140 +693,73 @@ public:
 };
 ```
 
+<!-- 写到这里！ -->
+
 ### 命令模式
 
-```cpp
-#include <iostream>
-#include <string>
-#include <utility>
+```java
+public interface Command {
+    void execute();
+}
+```
 
-class Command {
-public:
-    virtual ~Command() = default;
+```java
+public class SimpleCommand implements Command {
+    private final String payload;
 
-    virtual void Execute() const = 0;
-};
-
-class SimpleCommand : public Command {
-public:
-    explicit SimpleCommand(std::string payLoad) : _payLoad(std::move(payLoad)) {
+    public SimpleCommand(String payload) {
+        this.payload = payload;
     }
 
-    void Execute() const override {
-        std::cout << "SimpleCommand: Execute" + _payLoad;
+    @Override
+    public void execute() {
+        System.out.println("SimpleCommand: execute" + payload);
+    }
+}
+```
+
+```java
+public class ComplexCommand implements Command {
+    private final Receiver receiver;
+    private final String a;
+    private final String b;
+
+    public ComplexCommand(Receiver receiver, String a, String b) {
+        this.receiver = receiver;
+        this.a = a;
+        this.b = b;
     }
 
-private:
-    std::string _payLoad;
-};
+    @Override
+    public void execute() {
+        System.out.println("ComplexCommand: execute");
+        receiver.doSomethingA(a);
+        receiver.doSomethingB(b);
+    }
+}
+```
 
-class Receiver {
-public:
-    void DoSomethingA(const std::string &a) {
-        std::cout << "Receiver: DoSomethingA" + a;
+```java
+public class Invoker {
+    private final Command onStart;
+    private final Command onFinish;
+
+    public Invoker(Command onStart, Command onFinish) {
+        this.onStart = onStart;
+        this.onFinish = onFinish;
     }
 
-    void DoSomethingB(const std::string &b) {
-        std::cout << "Receiver: DoSomethingB" + b;
+    void doSomething() {
+        onStart.execute();
+        System.out.println("Invoker: doSomething");
+        onFinish.execute();
     }
-};
-
-class ComplexCommand : public Command {
-public:
-    ComplexCommand(std::shared_ptr<Receiver> receiver, std::string a, std::string b) :
-            _receiver(std::move(receiver)), _a(std::move(a)), _b(std::move(b)) {
-    }
-
-    void Execute() const override {
-        std::cout << "ComplexCommand: Execute";
-        _receiver->DoSomethingA(_a);
-        _receiver->DoSomethingB(_b);
-    }
-
-private:
-    std::shared_ptr<Receiver> _receiver;
-    std::string _a;
-    std::string _b;
-};
-
-class Invoker {
-public:
-    void SetOnStart(std::shared_ptr<Command> command) {
-        _onStart = std::move(command);
-    }
-
-    void SetOnFinish(std::shared_ptr<Command> command) {
-        _onFinish = std::move(command);
-    }
-
-    void DoSomething() {
-        if (_onStart) {
-            _onStart->Execute();
-        }
-        if (_onFinish) {
-            _onFinish->Execute();
-        }
-    }
-
-private:
-    std::shared_ptr<Command> _onStart;
-    std::shared_ptr<Command> _onFinish;
-};
+}
 ```
 
 ### 迭代器模式
 
-```cpp
-#include <iostream>
-#include <vector>
-
-template<typename ElementType, typename ContainerType>
-class Iterator {
-public:
-    explicit Iterator(ContainerType *container, bool reverse = false) : _container(container) {
-        _position = _container->_elements.begin();
-    }
-
-    void First() {
-        _position = _container->_elements.begin();
-    }
-
-    void Next() {
-        _position++;
-    }
-
-    bool IsDone() {
-        return _position == _container->_elements.end();
-    }
-
-    ElementType CurrentItem() {
-        return *_position;
-    }
-
-private:
-    typedef typename std::vector<ElementType>::iterator Position;
-
-    ContainerType *_container;
-    Position _position;
-};
-
-template<typename ElementType>
-class Container {
-public:
-    void Add(ElementType element) {
-        _elements.push_back(element);
-    }
-
-    Iterator<ElementType, Container> *CreateIterator() {
-        return new Iterator<ElementType, Container>(this);
-    }
-
-private:
-    std::vector<ElementType> _elements;
-
-    friend class Iterator<ElementType, Container>;
-};
-```
+<!-- TODO -->
 
 ### 中介者模式
 
