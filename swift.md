@@ -230,52 +230,70 @@ class Director {
 ### 原型模式
 
 ```swift
-from __future__ import annotations
-import copy
-from typing import List, Optional, Dict
+import Foundation
 
+class BaseClass: NSCopying, Equatable {
 
-class Component:
-    def __init__(self, some_int: int, some_list_of_objects: List) -> None:
-        self.some_int = some_int
-        self.some_list_of_objects = some_list_of_objects
+    private var intValue = 1
+    private var stringValue = "Value"
 
-    def __copy__(self) -> Component:
-        some_list_of_objects = copy.copy(self.some_list_of_objects)
-        new = self.__class__(self.some_int, some_list_of_objects)
+    required init(intValue: Int = 1, stringValue: String = "Value") {
+        self.intValue = intValue
+        self.stringValue = stringValue
+    }
 
-        return new
+    func copy(with zone: NSZone? = nil) -> Any {
+        let prototype = type(of: self).init()
+        prototype.intValue = intValue
+        prototype.stringValue = stringValue
+        return prototype
+    }
 
-    def __deepcopy__(self, memo: Optional[Dict] = None) -> Component:
-        if memo is None:
-            memo = {}
+    static func ==(lhs: BaseClass, rhs: BaseClass) -> Bool {
+        return lhs.intValue == rhs.intValue && lhs.stringValue == rhs.stringValue
+    }
+}
 
-        some_list_of_objects = copy.deepcopy(self.some_list_of_objects, memo)
-        new = self.__class__(self.some_int, some_list_of_objects)
+class SubClass: BaseClass {
 
-        return new
+    private var boolValue = true
+
+    func copy() -> Any {
+        return copy(with: nil)
+    }
+
+    override func copy(with zone: NSZone?) -> Any {
+        guard let prototype = super.copy(with: zone) as? SubClass else {
+            return SubClass()
+        }
+        prototype.boolValue = boolValue
+        return prototype
+    }
+}
 ```
 
 ### 单例模式
 
 ```swift
-from __future__ import annotations
-from typing import Dict, Any
+fimport Foundation
 
+class Singleton {
 
-class SingletonMeta(type):
-    _instances: Dict[SingletonMeta, Any] = {}
+    static let shared: Singleton = {
+        let instance = Singleton()
+        return instance
+    }()
 
-    def __call__(cls, *args, **kwargs):
-        if cls not in SingletonMeta._instances:
-            instance = super().__call__(*args, **kwargs)
-            SingletonMeta._instances[cls] = instance
-        return SingletonMeta._instances[cls]
+    private init() {
+    }
+}
 
+extension Singleton: NSCopying {
 
-class Singleton(metaclass=SingletonMeta):
-    def some_business_logic(self):
-        print("Singleton: some_business_logic")
+    func copy(with zone: NSZone? = nil) -> Any {
+        return self
+    }
+}
 ```
 
 ## 结构型模式
@@ -357,133 +375,157 @@ class ConcreteImplementationB: Implementation {
 ### 组合模式
 
 ```swift
-from __future__ import annotations
-from abc import ABC, abstractmethod
-from typing import List, Optional
+protocol Component {
 
+    var parent: Component? { get set }
 
-class Component(ABC):
-    def __init__(self) -> None:
-        self._parent: Optional[Component] = None
+    func add(component: Component)
+    
+    func remove(component: Component)
 
-    @property
-    def parent(self) -> Optional[Component]:
-        return self._parent
+    func isComposite() -> Bool
 
-    @parent.setter
-    def parent(self, parent: Component) -> None:
-        self._parent = parent
+    func operation() -> String
+}
 
-    def add(self, component: Component) -> None:
-        pass
+extension Component {
 
-    def remove(self, component: Component) -> None:
-        pass
+    func add(component: Component) {
+    }
 
-    def is_composite(self) -> bool:
-        return False
+    func remove(component: Component) {
+    }
 
-    @abstractmethod
-    def operation(self) -> str:
-        pass
+    func isComposite() -> Bool {
+        return false
+    }
+}
 
+class Leaf: Component {
 
-class Leaf(Component):
+    var parent: Component?
 
-    def operation(self) -> str:
+    func operation() -> String {
         return "Leaf: operation"
+    }
+}
 
+class Composite: Component {
 
-class Composite(Component):
+    var parent: Component?
 
-    def __init__(self) -> None:
-        super().__init__()
-        self._children: List[Component] = []
+    private var children = [Component]()
 
-    def add(self, component: Component) -> None:
-        self._children.append(component)
-        component.parent = self
+    func add(component: Component) {
+        var item = component
+        item.parent = self
+        children.append(item)
+    }
 
-    def remove(self, component: Component) -> None:
-        self._children.remove(component)
-        component.parent = None
+    func remove(component: Component) {
+        // ...
+    }
 
-    def is_composite(self) -> bool:
-        return True
+    func isComposite() -> Bool {
+        return true
+    }
 
-    def operation(self) -> str:
-        results = []
-        for child in self._children:
-            results.append(child.operation())
-        return ",".join(results)
+    func operation() -> String {
+        let result = children.map {
+            $0.operation()
+        }
+        return result.joined(separator: " ")
+    }
+}
 ```
 
 ### 装饰模式
 
 ```swift
-from abc import ABC, abstractmethod
+protocol Component {
 
+    func operation() -> String
+}
 
-class Component(ABC):
-    @abstractmethod
-    def operation(self) -> str:
-        pass
+class ConcreteComponent: Component {
 
-
-class ConcreteComponent(Component):
-    def operation(self) -> str:
+    func operation() -> String {
         return "ConcreteComponent: operation"
+    }
+}
 
+class Decorator: Component {
 
-class Decorator(Component):
-    def __init__(self, component: Component) -> None:
-        self._component = component
+    private var component: Component
 
-    @abstractmethod
-    def operation(self) -> str:
-        return self._component.operation()
+    init(_ component: Component) {
+        self.component = component
+    }
 
+    func operation() -> String {
+        return component.operation()
+    }
+}
 
-class ConcreteDecoratorA(Decorator):
-    def operation(self) -> str:
-        super().operation()
-        return "ConcreteDecoratorA: operation"
+class ConcreteDecoratorA: Decorator {
 
+    override func operation() -> String {
+        return "ConcreteDecoratorA: operation" + super.operation()
+    }
+}
 
-class ConcreteDecoratorB(Decorator):
-    def operation(self) -> str:
-        super().operation()
-        return "ConcreteDecoratorB: operation"
+class ConcreteDecoratorB: Decorator {
+
+    override func operation() -> String {
+        return "ConcreteDecoratorB: operation" + super.operation()
+    }
+}
 ```
 
 ### 享元模式
 
 ```swift
-from typing import Dict, List
+class Flyweight {
 
+    private let sharedState: [String]
 
-class Flyweight:
-    def __init__(self, shared_state: List[str]) -> None:
-        self._shared_state = shared_state
+    init(sharedState: [String]) {
+        self.sharedState = sharedState
+    }
 
-    def operation(self, unique_state: List[str]) -> None:
-        print(f"Flyweight: operation ({self._shared_state}) ({unique_state})")
+    func operation(uniqueState: [String]) {
+        print("Flyweight: operation (\(sharedState)) (\(uniqueState))")
+    }
+}
 
+class FlyweightFactory {
 
-class FlyweightFactory:
-    def __init__(self, flyweights: List[List[str]]) -> None:
-        self._flyweights: Dict[str, Flyweight] = {}
-        for state in flyweights:
-            self._flyweights[self._get_key(state)] = Flyweight(state)
+    private var flyweights = [String: Flyweight]()
 
-    def get_flyweight(self, shared_state: List[str]) -> Flyweight:
-        key = self._get_key(shared_state)
-        if not self._flyweights.get(key):
-            self._flyweights[key] = Flyweight(shared_state)
-        return self._flyweights[key]
+    init(states: [[String]]) {
+        for state in states {
+            flyweights[state.key] = Flyweight(sharedState: state)
+        }
+    }
 
-    def _get_key(self, state: List[str]) -> str:
-        return "_".join(state)
+    func flyweight(for state: [String]) -> Flyweight {
+        let key = state.key
+        guard let foundFlyweight = flyweights[key] else {
+            let flyweight = Flyweight(sharedState: state)
+            flyweights.updateValue(flyweight, forKey: key)
+            return flyweight
+        }
+
+        return foundFlyweight
+    }
+}
+
+extension Array where Element == String {
+
+    var key: String {
+        return self.joined()
+    }
+}
 ```
 
 ### 代理模式
