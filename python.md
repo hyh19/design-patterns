@@ -1,31 +1,34 @@
 <!-- omit in toc -->
 # 设计模式：Python 实现
 
-- [工厂方法模式](#工厂方法模式)
-- [抽象工厂模式](#抽象工厂模式)
-- [生成器模式](#生成器模式)
-- [原型模式](#原型模式)
-- [单例模式](#单例模式)
-- [适配器模式](#适配器模式)
-- [桥接模式](#桥接模式)
-- [适配器模式](#适配器模式-1)
-- [桥接模式](#桥接模式-1)
-- [组合模式](#组合模式)
-- [装饰模式](#装饰模式)
-- [享元模式](#享元模式)
-- [代理模式](#代理模式)
-- [责任链模式](#责任链模式)
-- [命令模式](#命令模式)
-- [迭代器模式](#迭代器模式)
-- [中介者模式](#中介者模式)
-- [备忘录模式](#备忘录模式)
-- [观察者模式](#观察者模式)
-- [状态模式](#状态模式)
-- [策略模式](#策略模式)
-- [模版方法模式](#模版方法模式)
-- [访问者模式](#访问者模式)
+- [创建型模式](#创建型模式)
+  - [工厂方法模式](#工厂方法模式)
+  - [抽象工厂模式](#抽象工厂模式)
+  - [生成器模式](#生成器模式)
+  - [原型模式](#原型模式)
+  - [单例模式](#单例模式)
+- [结构型模式](#结构型模式)
+  - [适配器模式](#适配器模式)
+  - [桥接模式](#桥接模式)
+  - [组合模式](#组合模式)
+  - [装饰模式](#装饰模式)
+  - [享元模式](#享元模式)
+  - [代理模式](#代理模式)
+- [行为模式](#行为模式)
+  - [责任链模式](#责任链模式)
+  - [命令模式](#命令模式)
+  - [迭代器模式](#迭代器模式)
+  - [中介者模式](#中介者模式)
+  - [备忘录模式](#备忘录模式)
+  - [观察者模式](#观察者模式)
+  - [状态模式](#状态模式)
+  - [策略模式](#策略模式)
+  - [模版方法模式](#模版方法模式)
+  - [访问者模式](#访问者模式)
 
-## 工厂方法模式
+## 创建型模式
+
+### 工厂方法模式
 
 ```py
 from __future__ import annotations
@@ -60,15 +63,15 @@ class Product(ABC):
 
 class ConcreteProduct1(Product):
     def operation(self) -> str:
-        return "ConcreteProduct1"
+        return "ConcreteProduct1: operation"
 
 
 class ConcreteProduct2(Product):
     def operation(self) -> str:
-        return "ConcreteProduct2"
+        return "ConcreteProduct2: operation"
 ```
 
-## 抽象工厂模式
+### 抽象工厂模式
 
 ```py
 from __future__ import annotations
@@ -109,12 +112,12 @@ class AbstractProductA(ABC):
 
 class ConcreteProductA1(AbstractProductA):
     def useful_function_a(self) -> str:
-        return "ConcreteProductA1"
+        return "ConcreteProductA1: useful_function_a"
 
 
 class ConcreteProductA2(AbstractProductA):
     def useful_function_a(self) -> str:
-        return "ConcreteProductA2"
+        return "ConcreteProductA2: useful_function_a"
 
 
 class AbstractProductB(ABC):
@@ -129,21 +132,23 @@ class AbstractProductB(ABC):
 
 class ConcreteProductB1(AbstractProductB):
     def useful_function_b(self) -> str:
-        return "ConcreteProductB1"
+        return "ConcreteProductB1: useful_function_b"
 
     def another_useful_function_b(self, collaborator: AbstractProductA) -> str:
-        return "ConcreteProductB1" + collaborator.useful_function_a()
+        collaborator.useful_function_a()
+        return "ConcreteProductB1: another_useful_function_b"
 
 
 class ConcreteProductB2(AbstractProductB):
     def useful_function_b(self) -> str:
-        return "ConcreteProductB2"
+        return "ConcreteProductB2: useful_function_b"
 
     def another_useful_function_b(self, collaborator: AbstractProductA) -> str:
-        return "ConcreteProductB2" + collaborator.useful_function_a()
+        collaborator.useful_function_a()
+        return "ConcreteProductB2: another_useful_function_b"
 ```
 
-## 生成器模式
+### 生成器模式
 
 ```py
 from __future__ import annotations
@@ -208,7 +213,7 @@ class Director:
         builder.produce_part_c()
 ```
 
-## 原型模式
+### 原型模式
 
 ```py
 from __future__ import annotations
@@ -216,18 +221,18 @@ import copy
 from typing import List, Optional, Dict
 
 
-class SomeComponent:
+class Component:
     def __init__(self, some_int: int, some_list_of_objects: List) -> None:
         self.some_int = some_int
         self.some_list_of_objects = some_list_of_objects
 
-    def __copy__(self) -> SomeComponent:
+    def __copy__(self) -> Component:
         some_list_of_objects = copy.copy(self.some_list_of_objects)
         new = self.__class__(self.some_int, some_list_of_objects)
 
         return new
 
-    def __deepcopy__(self, memo: Optional[Dict] = None) -> SomeComponent:
+    def __deepcopy__(self, memo: Optional[Dict] = None) -> Component:
         if memo is None:
             memo = {}
 
@@ -237,7 +242,7 @@ class SomeComponent:
         return new
 ```
 
-## 单例模式
+### 单例模式
 
 ```py
 from __future__ import annotations
@@ -259,65 +264,9 @@ class Singleton(metaclass=SingletonMeta):
         print("Singleton: some_business_logic")
 ```
 
-## 适配器模式
+## 结构型模式
 
-```py
-class Target:
-    def request(self) -> str:
-        return "Target"
-
-
-class Adaptee:
-    def specific_request(self) -> str:
-        return "Adaptee"
-
-
-class Adapter(Target):
-    def __init__(self, adaptee: Adaptee) -> None:
-        super().__init__()
-        self._adaptee = adaptee
-
-    def request(self) -> str:
-        return "Adapter" + self._adaptee.specific_request()
-```
-
-## 桥接模式
-
-```py
-from __future__ import annotations
-from abc import ABC, abstractmethod
-
-
-class Abstraction:
-    def __init__(self, implementation: Implementation) -> None:
-        self._implementation = implementation
-
-    def operation(self) -> str:
-        return self._implementation.operation_implementation()
-
-
-class ExtendedAbstraction(Abstraction):
-    def operation(self) -> str:
-        return "ExtendedAbstraction" + super().operation()
-
-
-class Implementation(ABC):
-    @abstractmethod
-    def operation_implementation(self) -> str:
-        pass
-
-
-class ConcreteImplementationA(Implementation):
-    def operation_implementation(self) -> str:
-        return "ConcreteImplementationA"
-
-
-class ConcreteImplementationB(Implementation):
-    def operation_implementation(self) -> str:
-        return "ConcreteImplementationB"
-```
-
-## 适配器模式
+### 适配器模式
 
 ```py
 class Target:
@@ -340,7 +289,7 @@ class Adapter(Target):
         return self._adaptee.specific_request()
 ```
 
-## 桥接模式
+### 桥接模式
 
 ```py
 from __future__ import annotations
@@ -358,8 +307,8 @@ class Abstraction:
 
 class ExtendedAbstraction(Abstraction):
     def operation(self) -> str:
-        print("ExtendedAbstraction: operation")
-        return super().operation()
+        super().operation()
+        return "ExtendedAbstraction: operation"
 
 
 class Implementation(ABC):
@@ -378,7 +327,7 @@ class ConcreteImplementationB(Implementation):
         return "ConcreteImplementationB: operation_implementation"
 ```
 
-## 组合模式
+### 组合模式
 
 ```py
 from __future__ import annotations
@@ -442,7 +391,7 @@ class Composite(Component):
         return ",".join(results)
 ```
 
-## 装饰模式
+### 装饰模式
 
 ```py
 from abc import ABC, abstractmethod
@@ -456,7 +405,7 @@ class Component(ABC):
 
 class ConcreteComponent(Component):
     def operation(self) -> str:
-        return "ConcreteComponent"
+        return "ConcreteComponent: operation"
 
 
 class Decorator(Component):
@@ -480,7 +429,7 @@ class ConcreteDecoratorB(Decorator):
         return "ConcreteDecoratorB: operation"
 ```
 
-## 享元模式
+### 享元模式
 
 ```py
 from typing import Dict, List
@@ -510,7 +459,7 @@ class FlyweightFactory:
         return "_".join(state)
 ```
 
-## 代理模式
+### 代理模式
 
 ```py
 from abc import ABC, abstractmethod
@@ -532,10 +481,13 @@ class Proxy(Subject):
         self._real_subject = real_subject
 
     def request(self) -> None:
+        print("Proxy: request")
         self._real_subject.request()
 ```
 
-## 责任链模式
+## 行为模式
+
+### 责任链模式
 
 ```py
 from __future__ import annotations
@@ -594,7 +546,7 @@ class ConcreteHandler3(BaseHandler):
             return super().handle(request)
 ```
 
-## 命令模式
+### 命令模式
 
 ```py
 from __future__ import annotations
@@ -654,7 +606,7 @@ class Invoker:
             self._on_finish.execute()
 ```
 
-## 迭代器模式
+### 迭代器模式
 
 ```py
 from __future__ import annotations
@@ -696,29 +648,28 @@ class WordsCollection(Iterable):
         self._collection.append(item)
 ```
 
-## 中介者模式
+### 中介者模式
 
 ```py
 from __future__ import annotations
-
 from abc import ABC, abstractmethod
 from typing import Optional
 
 
 class Mediator(ABC):
     @abstractmethod
-    def notify(self, sender: BaseComponent, event: str) -> None:
+    def notify(self, sender: Component, event: str) -> None:
         pass
 
 
 class ConcreteMediator(Mediator):
-    def __init__(self, component1: Component1, component2: Component2) -> None:
+    def __init__(self, component1: ConcreteComponent1, component2: ConcreteComponent2) -> None:
         self._component1 = component1
         self._component2 = component2
         self._component1.mediator = self
         self._component2.mediator = self
 
-    def notify(self, sender: BaseComponent, event: str) -> None:
+    def notify(self, sender: Component, event: str) -> None:
         if event == "A":
             self._component2.do_c()
         elif event == "D":
@@ -726,7 +677,7 @@ class ConcreteMediator(Mediator):
             self._component2.do_c()
 
 
-class BaseComponent(ABC):
+class Component(ABC):
     def __init__(self, mediator: Optional[Mediator] = None) -> None:
         self._mediator = mediator
 
@@ -739,83 +690,64 @@ class BaseComponent(ABC):
         self._mediator = mediator
 
 
-class Component1(BaseComponent):
+class ConcreteComponent1(Component):
     def do_a(self) -> None:
+        print("ConcreteComponent1: do_a")
         assert self.mediator is not None
         self.mediator.notify(self, "A")
 
     def do_b(self) -> None:
+        print("ConcreteComponent1: do_b")
         assert self.mediator is not None
         self.mediator.notify(self, "B")
 
 
-class Component2(BaseComponent):
+class ConcreteComponent2(Component):
     def do_c(self) -> None:
+        print("ConcreteComponent2: do_c")
         assert self.mediator is not None
         self.mediator.notify(self, "C")
 
     def do_d(self) -> None:
+        print("ConcreteComponent2: do_d")
         assert self.mediator is not None
         self.mediator.notify(self, "D")
+
 ```
 
-## 备忘录模式
+### 备忘录模式
 
 ```py
 from __future__ import annotations
-
-from abc import ABC, abstractmethod
-from datetime import datetime
 from random import sample
 from string import ascii_letters
 from typing import List
 
 
 class Originator:
-
     def __init__(self, state: str) -> None:
         self._state = state
 
     def do_something(self) -> None:
         self._state = self._generate_random_string(30)
 
+    def save(self) -> Memento:
+        return Memento(self._state)
+
+    def restore(self, memento: Memento) -> None:
+        self._state = memento.state
+
     def _generate_random_string(self, length: int = 10) -> str:
         return "".join(sample(ascii_letters, length))
 
-    def save(self) -> Memento:
-        return ConcreteMemento(self._state)
 
-    def restore(self, memento: Memento) -> None:
-        self._state = memento.get_state()
-
-
-class Memento(ABC):
-    @abstractmethod
-    def get_name(self) -> str:
-        pass
-
-    @abstractmethod
-    def get_date(self) -> str:
-        pass
-
-    @abstractmethod
-    def get_state(self) -> str:
-        pass
-
-
-class ConcreteMemento(Memento):
+class Memento:
     def __init__(self, state: str) -> None:
         self._state = state
-        self._date = str(datetime.now())[:19]
 
-    def get_state(self) -> str:
+    @property
+    def state(self) -> str:
         return self._state
-
-    def get_name(self) -> str:
-        return f"{self._date} / ({self._state[0:9]}...)"
-
-    def get_date(self) -> str:
-        return self._date
 
 
 class Caretaker:
@@ -830,18 +762,10 @@ class Caretaker:
         if not len(self._mementos):
             return
 
-        memento = self._mementos.pop()
-        try:
-            self._originator.restore(memento)
-        except Exception:
-            self.undo()
-
-    def show_history(self) -> None:
-        for memento in self._mementos:
-            print(memento.get_name())
+        self._originator.restore(self._mementos.pop())
 ```
 
-## 观察者模式
+### 观察者模式
 
 ```py
 from __future__ import annotations
@@ -892,15 +816,15 @@ class Observer(ABC):
 
 class ConcreteObserverA(Observer):
     def update(self, state: int) -> None:
-        print("ConcreteObserverA")
+        print("ConcreteObserverA: update")
 
 
 class ConcreteObserverB(Observer):
     def update(self, state: int) -> None:
-        print("ConcreteObserverB")
+        print("ConcreteObserverB: update")
 ```
 
-## 状态模式
+### 状态模式
 
 ```py
 from __future__ import annotations
@@ -965,7 +889,7 @@ class ConcreteStateB(State):
         self.context.transition_to(ConcreteStateA())
 ```
 
-## 策略模式
+### 策略模式
 
 ```py
 from __future__ import annotations
@@ -1006,7 +930,7 @@ class ConcreteStrategyB(Strategy):
         return sorted(data, reverse=True)
 ```
 
-## 模版方法模式
+### 模版方法模式
 
 ```py
 from abc import ABC, abstractmethod
@@ -1067,7 +991,7 @@ class ConcreteClass2(AbstractClass):
         print("ConcreteClass2: hook1")
 ```
 
-## 访问者模式
+### 访问者模式
 
 ```py
 from __future__ import annotations

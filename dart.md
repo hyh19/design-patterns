@@ -6,6 +6,7 @@
 - [工厂方法模式](#工厂方法模式)
 - [适配器模式](#适配器模式)
 - [桥接模式](#桥接模式)
+- [中介者模式](#中介者模式)
 
 ## 抽象工厂模式
 
@@ -266,3 +267,6 @@ abstract class ConcreteImplementationB implements Implementation {
   }
 }
 ```
+
+## 中介者模式
+

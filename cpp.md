@@ -6,6 +6,7 @@
 - [工厂方法模式](#工厂方法模式)
 - [适配器模式](#适配器模式)
 - [桥接模式](#桥接模式)
+- [中介者模式](#中介者模式)
 
 ## 抽象工厂模式
 
@@ -312,5 +313,75 @@ public:
     std::string Operation() const override {
         return "ExtendedAbstraction" + Abstraction::Operation();
     }
+};
+```
+
+## 中介者模式
+
+```cpp
+#include <string>
+
+class BaseComponent;
+
+class Mediator {
+public:
+    virtual void Notify(BaseComponent *sender, const std::string &event) const = 0;
+};
+
+class BaseComponent {
+public:
+    explicit BaseComponent(Mediator *mediator = nullptr) : _mediator(mediator) {
+    }
+
+    void SetMediator(Mediator *mediator) {
+        _mediator = mediator;
+    }
+
+protected:
+    Mediator *_mediator;
+};
+
+class Component1 : public BaseComponent {
+public:
+    void DoA() {
+        _mediator->Notify(this, "A");
+    }
+
+    void DoB() {
+        _mediator->Notify(this, "B");
+    }
+};
+
+class Component2 : public BaseComponent {
+public:
+    void DoC() {
+        _mediator->Notify(this, "C");
+    }
+
+    void DoD() {
+        _mediator->Notify(this, "D");
+    }
+};
+
+class ConcreteMediator : public Mediator {
+public:
+    ConcreteMediator(Component1 *c1, Component2 *c2) : _component1(c1), _component2(c2) {
+        _component1->SetMediator(this);
+        _component2->SetMediator(this);
+    }
+
+    void Notify(BaseComponent *sender, const std::string &event) const override {
+        if (event == "A") {
+            _component2->DoC();
+        }
+        if (event == "D") {
+            _component1->DoB();
+            _component2->DoC();
+        }
+    }
+
+private:
+    Component1 *_component1;
+    Component2 *_component2;
 };
 ```
