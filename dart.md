@@ -687,72 +687,58 @@ public class Invoker {
 
 ### 中介者模式
 
-```java
-public interface Mediator {
-    void notify(Colleague sender, String event);
+```dart
+abstract class Mediator {
+  void notify(Colleague sender, String event);
 }
-```
 
-```java
-public class ConcreteMediator implements Mediator {
-    private final ConcreteColleague1 colleague1;
-    private final ConcreteColleague2 colleague2;
+class ConcreteMediator implements Mediator {
+  final ConcreteColleague1 _colleague1;
+  final ConcreteColleague2 _colleague2;
 
-    public ConcreteMediator(ConcreteColleague1 colleague1, ConcreteColleague2 colleague2) {
-        this.colleague1 = colleague1;
-        this.colleague2 = colleague2;
-        this.colleague1.mediator = this;
-        this.colleague2.mediator = this;
+  ConcreteMediator(this._colleague1, this._colleague2) {
+    _colleague1.mediator = this;
+    _colleague2.mediator = this;
+  }
+
+  @override
+  void notify(Colleague sender, String event) {
+    if (event == "A") {
+      _colleague2.doC();
     }
-
-    @Override
-    public void notify(Colleague sender, String event) {
-        if (event.equals("A")) {
-            colleague2.doC();
-        }
-        if (event.equals("D")) {
-            colleague1.doB();
-            colleague2.doC();
-        }
+    if (event == "D") {
+      _colleague1.doB();
+      _colleague2.doC();
     }
+  }
 }
-```
 
-```java
-public abstract class Colleague {
-    protected Mediator mediator;
-
-    public void setMediator(Mediator mediator) {
-        this.mediator = mediator;
-    }
+abstract class Colleague {
+  late final Mediator mediator;
 }
-```
 
-```java
-public class ConcreteColleague1 extends Colleague {
-    public void doA() {
-        System.out.println("ConcreteColleague1: doA");
-        mediator.notify(this, "A");
-    }
+class ConcreteColleague1 extends Colleague {
+  void doA() {
+    print("ConcreteColleague1: doA");
+    mediator.notify(this, "A");
+  }
 
-    public void doB() {
-        System.out.println("ConcreteColleague1: doB");
-        mediator.notify(this, "B");
-    }
+  void doB() {
+    print("ConcreteColleague1: doB");
+    mediator.notify(this, "B");
+  }
 }
-```
 
-```java
-public class ConcreteColleague2 extends Colleague {
-    public void doC() {
-        System.out.println("ConcreteColleague1: doC");
-        mediator.notify(this, "C");
-    }
+class ConcreteColleague2 extends Colleague {
+  void doC() {
+    print("ConcreteColleague1: doC");
+    mediator.notify(this, "C");
+  }
 
-    public void doD() {
-        System.out.println("ConcreteColleague1: doD");
-        mediator.notify(this, "D");
-    }
+  void doD() {
+    print("ConcreteColleague1: doD");
+    mediator.notify(this, "D");
+  }
 }
 ```
 
