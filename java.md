@@ -590,35 +590,35 @@ private:
 
 ### 代理模式
 
-```cpp
-#include <iostream>
-#include <utility>
+```java
+public interface Subject {
+    void request();
+}
+```
 
-class Subject {
-public:
-    virtual void Request() const = 0;
-};
-
-class RealSubject : public Subject {
-public:
-    void Request() const override {
-        std::cout << "RealSubject: Request";
+```java
+public class RealSubject implements Subject {
+    @Override
+    public void request() {
+        System.out.println("RealSubject: request");
     }
-};
+}
+```
 
-class Proxy : public Subject {
-public:
-    explicit Proxy(std::shared_ptr<RealSubject> realSubject) : _realSubject(std::move(realSubject)) {
-    }
+```java
+public class Proxy implements Subject {
+    private final RealSubject realSubject;
 
-    void Request() const override {
-        std::cout << "Proxy: Request";
-        _realSubject->Request();
+    public Proxy(RealSubject realSubject) {
+        this.realSubject = realSubject;
     }
 
-private:
-    std::shared_ptr<RealSubject> _realSubject;
-};
+    @Override
+    public void request() {
+        System.out.println("Proxy: request");
+        realSubject.request();
+    }
+}
 ```
 
 ## 行为模式
