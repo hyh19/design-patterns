@@ -542,34 +542,28 @@ public class ConcreteDecoratorB extends Decorator {
 
 ### 代理模式
 
-```java
-public interface Subject {
-    void request();
+```dart
+abstract class Subject {
+  void request();
 }
-```
 
-```java
-public class RealSubject implements Subject {
-    @Override
-    public void request() {
-        System.out.println("RealSubject: request");
-    }
+class RealSubject implements Subject {
+  @override
+  void request() {
+    print("RealSubject: request");
+  }
 }
-```
 
-```java
-public class Proxy implements Subject {
-    private final RealSubject realSubject;
+class Proxy implements Subject {
+  final RealSubject _realSubject;
 
-    public Proxy(RealSubject realSubject) {
-        this.realSubject = realSubject;
-    }
+  Proxy(this._realSubject);
 
-    @Override
-    public void request() {
-        System.out.println("Proxy: request");
-        realSubject.request();
-    }
+  @override
+  void request() {
+    print("Proxy: request");
+    _realSubject.request();
+  }
 }
 ```
 
