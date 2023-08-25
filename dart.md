@@ -577,45 +577,38 @@ public class Proxy implements Subject {
 
 ### 责任链模式
 
-```java
-public abstract class Handler {
-    private Handler successor;
+```dart
+abstract class Handler {
+  Handler? successor;
 
-    public Handler setSuccessor(Handler handler) {
-        successor = handler;
-        return handler;
-    }
+  Handler setSuccessor(Handler handler) {
+    successor = handler;
+    return handler;
+  }
 
-    public String handle(String request) {
-        if (successor != null) {
-            return successor.handle(request);
-        }
-        return null;
-    }
+  String? handle(String request) {
+    return successor?.handle(request);
+  }
 }
-```
 
-```java
-public class ConcreteHandler1 extends Handler{
-    @Override
-    public String handle(String request) {
-        if (request.equals("request1")) {
-            return "ConcreteHandler1: handle" + request;
-        }
-        return super.handle(request);
+class ConcreteHandler1 extends Handler {
+  @override
+  String? handle(String request) {
+    if (request == "request1") {
+      return "ConcreteHandler1: handle $request";
     }
+    return super.handle(request);
+  }
 }
-```
 
-```java
-public class ConcreteHandler2 extends Handler {
-    @Override
-    public String handle(String request) {
-        if (request.equals("request2")) {
-            return "ConcreteHandler2: handle" + request;
-        }
-        return super.handle(request);
+class ConcreteHandler2 extends Handler {
+  @override
+  String? handle(String request) {
+    if (request == "request2") {
+      return "ConcreteHandler2: handle $request";
     }
+    return super.handle(request);
+  }
 }
 ```
 
