@@ -406,73 +406,56 @@ abstract class ConcreteImplementationB implements Implementation {
 
 ### 组合模式
 
-```java
-public abstract class Component {
-    protected Component parent;
+```dart
+abstract class Component {
+  Component? parent;
 
-    public Component getParent() {
-        return parent;
-    }
+  void add(Component component) {}
 
-    public void setParent(Component parent) {
-        this.parent = parent;
-    }
+  void remove(Component component) {}
 
-    void add(Component component) {
-    }
+  bool isComposite() {
+    return false;
+  }
 
-    void remove(Component component) {
-    }
-
-    boolean isComposite() {
-        return false;
-    }
-
-    abstract public String operation();
+  String operation();
 }
-```
 
-```java
-public class Leaf extends Component {
-    @Override
-    public String operation() {
-        return "Leaf: operation";
-    }
+class Leaf extends Component {
+  @override
+  String operation() {
+    return "Leaf: operation";
+  }
 }
-```
 
-```java
-import java.util.ArrayList;
-import java.util.List;
+class Composite extends Component {
+  final List<Component> children = [];
 
-public class Composite extends Component {
-    private final List<Component> children = new ArrayList<>();
+  @override
+  void add(Component component) {
+    children.add(component);
+    component.parent = this;
+  }
 
-    @Override
-    void add(Component component) {
-        children.add(component);
-        component.setParent(this);
+  @override
+  void remove(Component component) {
+    children.remove(component);
+    component.parent = null;
+  }
+
+  @override
+  bool isComposite() {
+    return true;
+  }
+
+  @override
+  String operation() {
+    final sb = StringBuffer();
+    for (final child in children) {
+      sb.write(child.operation());
     }
-
-    @Override
-    void remove(Component component) {
-        children.remove(component);
-        component.setParent(null);
-    }
-
-    @Override
-    boolean isComposite() {
-        return true;
-    }
-
-    @Override
-    public String operation() {
-        StringBuilder sb = new StringBuilder();
-        for (Component child : children) {
-            sb.append(child.operation());
-        }
-        return sb.toString();
-    }
+    return sb.toString();
+  }
 }
 ```
 
