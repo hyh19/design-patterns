@@ -948,40 +948,30 @@ public class Context {
 
 ### 策略模式
 
-```java
-public interface Strategy {
-    void doAlgorithm(int[] data);
+```dart
+abstract class Strategy {
+  void doAlgorithm(List<int> data);
 }
-```
 
-```java
-import java.util.Arrays;
-
-public class ConcreteStrategyA implements Strategy {
-    @Override
-    public void doAlgorithm(int[] data) {
-        Arrays.sort(data);
-    }
+class ConcreteStrategyA implements Strategy {
+  @override
+  void doAlgorithm(List<int> data) {
+    data.sort();
+  }
 }
-```
 
-```java
-import java.util.Arrays;
-
-public class ConcreteStrategyB implements Strategy {
-    @Override
-    public void doAlgorithm(int[] data) {
-        Arrays.sort(data);
-    }
+class ConcreteStrategyB implements Strategy {
+  @override
+  void doAlgorithm(List<int> data) {
+    data.sort((a, b) => b - a);
+  }
 }
-```
 
-```java
-public class Context {
-    void doSomething(Strategy strategy) {
-        int[] data = new int[]{1, 2, 3, 4, 5, 6};
-        strategy.doAlgorithm(data);
-    }
+class Context {
+  void doSomething(Strategy strategy) {
+    final data = <int>[1, 2, 3, 4, 5, 6];
+    strategy.doAlgorithm(data);
+  }
 }
 ```
 
