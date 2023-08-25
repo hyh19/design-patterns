@@ -827,60 +827,51 @@ public class Caretaker {
 
 ### 观察者模式
 
-```java
-import java.util.ArrayList;
-import java.util.List;
+```dart
+import 'dart:math';
 
-public abstract class Subject {
-    protected List<Observer> observers = new ArrayList<>();
+abstract class Subject {
+  List<Observer> observers = [];
 
-    public void attach(Observer observer) {
-        observers.add(observer);
+  void attach(Observer observer) {
+    observers.add(observer);
+  }
+
+  void detach(Observer observer) {
+    observers.remove(observer);
+  }
+
+  void notify() {
+    for (var element in observers) {
+      element.update(this);
     }
-
-    public void detach(Observer observer) {
-        observers.remove(observer);
-    }
-
-    public void notify(String dummy) {
-        for (Observer observer : observers) {
-            observer.update(this);
-        }
-    }
+  }
 }
-```
 
-```java
-public interface Observer {
-    void update(Subject subject);
+abstract class Observer {
+  void update(Subject subject);
 }
-```
 
-```java
-import java.util.Random;
+class ConcreteSubject extends Subject {
+  late int state;
 
-public class ConcreteSubject extends Subject {
-    private int state;
+  int getState() {
+    return state;
+  }
 
-    public int getState() {
-        return state;
-    }
-
-    public void doSomething() {
-        Random random = new Random();
-        state = random.nextInt();
-        notify(null);
-    }
+  void doSomething() {
+    state = Random().nextInt(100);
+    notify();
+  }
 }
-```
 
-```java
-public class ConcreteObserver implements Observer {
-    @Override
-    public void update(Subject subject) {
-        ConcreteSubject concreteSubject = (ConcreteSubject) subject;
-        System.out.println("ConcreteObserver: update" + concreteSubject.getState());
+class ConcreteObserver implements Observer {
+  @override
+  void update(Subject subject) {
+    if (subject is ConcreteSubject) {
+      print("ConcreteObserver: update ${subject.getState()}");
     }
+  }
 }
 ```
 
