@@ -477,116 +477,67 @@ private:
 
 ### 装饰模式
 
-```cpp
-#include <iostream>
-#include <string>
+```java
+public interface Component {
+    void operation();
+}
+```
 
-class Component {
-public:
-    virtual ~Component() = default;
-
-    virtual std::string Operation() const = 0;
-};
-
-class ConcreteComponent : public Component {
-public:
-    std::string Operation() const override {
-        return "ConcreteComponent: Operation";
+```java
+public class ConcreteComponent implements Component {
+    @Override
+    public void operation() {
+        System.out.println("ConcreteComponent: operation");
     }
-};
+}
+```
 
-class Decorator : public Component {
-public:
-    explicit Decorator(Component *component) : _component(component) {
-    }
+```java
+public abstract class Decorator implements Component {
+    private final Component component;
 
-    std::string Operation() const override {
-        return _component->Operation();
+    public Decorator(Component component) {
+        this.component = component;
     }
 
-protected:
-    Component *_component;
-};
+    @Override
+    public void operation() {
+        component.operation();
+    }
+}
+```
 
-class ConcreteDecoratorA : public Decorator {
-public:
-    explicit ConcreteDecoratorA(Component *component) : Decorator(component) {
+```java
+public class ConcreteDecoratorA extends Decorator {
+    public ConcreteDecoratorA(Component component) {
+        super(component);
     }
 
-    std::string Operation() const override {
-        Decorator::Operation();
-        return "ConcreteDecoratorA: Operation";
+    @Override
+    public void operation() {
+        super.operation();
+        System.out.println("ConcreteDecoratorA: operation");
     }
-};
+}
+```
 
-class ConcreteDecoratorB : public Decorator {
-public:
-    explicit ConcreteDecoratorB(Component *component) : Decorator(component) {
+```java
+public class ConcreteDecoratorB extends Decorator {
+    public ConcreteDecoratorB(Component component) {
+        super(component);
     }
 
-    std::string Operation() const override {
-        Decorator::Operation();
-        return "ConcreteDecoratorB: Operation";
+    @Override
+    public void operation() {
+        super.operation();
+        System.out.println("ConcreteDecoratorB: operation");
     }
-};
+}
 ```
 
 ### 享元模式
 
-```cpp
-#include <iostream>
-#include <utility>
-#include <vector>
-#include <unordered_map>
-
-class Flyweight {
-public:
-    explicit Flyweight(std::vector<std::string> sharedState) :
-            _sharedState(std::move(sharedState)) {}
-
-    void Operation(const std::vector<std::string> &uniqueState) const {
-        std::string result;
-        for (const auto &item: _sharedState) {
-            result += item;
-        }
-        for (const auto &item: uniqueState) {
-            result += item;
-        }
-        std::cout << "Flyweight: Operation" << result;
-    }
-
-private:
-    std::vector<std::string> _sharedState;
-};
-
-class FlyweightFactory {
-public:
-    FlyweightFactory(std::initializer_list<std::vector<std::string>> sharedStates) {
-        for (const auto &sharedState: sharedStates) {
-            CreateFlyweight(sharedState);
-        }
-    }
-
-    Flyweight CreateFlyweight(const std::vector<std::string> &sharedState) {
-        std::string key = FlyweightFactory::GetKey(sharedState);
-        if (_flyweights.find(key) == _flyweights.end()) {
-            _flyweights.insert({key, Flyweight(sharedState)});
-        }
-        return _flyweights.at(key);
-    }
-
-private:
-    static std::string GetKey(const std::vector<std::string> &sharedState) {
-        std::string key;
-        for (const auto &item: sharedState) {
-            key += item;
-        }
-        return key;
-    }
-
-    std::unordered_map<std::string, Flyweight> _flyweights;
-};
-```
+<!-- TODO -->
 
 ### 代理模式
 
