@@ -771,7 +771,47 @@ public class Invoker {
 
 ### 迭代器模式
 
-<!-- TODO -->
+```java
+import java.util.Iterator;
+import java.util.List;
+
+public class WordCollection implements Iterable<String> {
+    private final List<String> words;
+
+    public WordCollection(List<String> words) {
+        this.words = words;
+    }
+
+    @Override
+    public Iterator<String> iterator() {
+        return new WordIterator(words);
+    }
+}
+```
+
+```java
+import java.util.Iterator;
+import java.util.List;
+
+public class WordIterator implements Iterator<String> {
+    private final List<String> words;
+    private int index = 0;
+
+    public WordIterator(List<String> words) {
+        this.words = words;
+    }
+
+    @Override
+    public boolean hasNext() {
+        return index < words.size();
+    }
+
+    @Override
+    public String next() {
+        return words.get(index++);
+    }
+}
+```
 
 ### 中介者模式
 
