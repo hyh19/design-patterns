@@ -634,7 +634,33 @@ class Invoker {
 
 ### 迭代器模式
 
-<!-- TODO -->
+```dart
+class WordCollection extends Iterable<String> {
+  final List<String> _words;
+
+  WordCollection(this._words);
+
+  @override
+  Iterator<String> get iterator => WordIterator(_words);
+}
+
+class WordIterator extends Iterator<String> {
+  final List<String> _words;
+  int _index = 0;
+
+  WordIterator(this._words);
+
+  @override
+  String get current {
+    return _words[_index++];
+  }
+
+  @override
+  bool moveNext() {
+    return _index < _words.length;
+  }
+}
+```
 
 ### 中介者模式
 
