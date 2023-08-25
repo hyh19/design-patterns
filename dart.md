@@ -987,59 +987,54 @@ public class Context {
 
 ### 模版方法模式
 
-```java
-public abstract class AbstractClass {
+```dart
+abstract class AbstractClass {
+  void templateMethod() {
+    baseOperation1();
+    requiredOperation1();
+    baseOperation2();
+    hook1();
+    requiredOperation2();
+    baseOperation3();
+    hook2();
+  }
 
-    public final void templateMethod() {
-        baseOperation1();
-        requiredOperation1();
-        baseOperation2();
-        hook1();
-        requiredOperation2();
-        baseOperation3();
-        hook2();
-    }
+  void baseOperation1() {
+    print("AbstractClass: baseOperation1");
+  }
 
-    protected void baseOperation1() {
-        System.out.println("AbstractClass: baseOperation1");
-    }
+  void baseOperation2() {
+    print("AbstractClass: baseOperation2");
+  }
 
-    protected void baseOperation2() {
-        System.out.println("AbstractClass: baseOperation2");
-    }
+  void baseOperation3() {
+    print("AbstractClass: baseOperation3");
+  }
 
-    protected void baseOperation3() {
-        System.out.println("AbstractClass: baseOperation3");
-    }
+  void requiredOperation1();
 
-    abstract protected void requiredOperation1();
+  void requiredOperation2();
 
-    abstract protected void requiredOperation2();
+  void hook1() {}
 
-    protected void hook1() {
-    }
-
-    protected void hook2() {
-    }
+  void hook2() {}
 }
-```
 
-```java
-public class ConcreteClass extends AbstractClass {
-    @Override
-    protected void requiredOperation1() {
-        System.out.println("ConcreteClass: requiredOperation1");
-    }
+class ConcreteClass extends AbstractClass {
+  @override
+  void requiredOperation1() {
+    print("ConcreteClass: requiredOperation1");
+  }
 
-    @Override
-    protected void requiredOperation2() {
-        System.out.println("ConcreteClass: requiredOperation2");
-    }
+  @override
+  void requiredOperation2() {
+    print("ConcreteClass: requiredOperation2");
+  }
 
-    @Override
-    protected void hook1() {
-        System.out.println("ConcreteClass: hook1");
-    }
+  @override
+  void hook1() {
+    print("ConcreteClass: hook1");
+  }
 }
 ```
 
