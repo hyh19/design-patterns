@@ -404,75 +404,74 @@ public class ConcreteImplementationB implements Implementation {
 
 ### 组合模式
 
-```cpp
-#include <algorithm>
-#include <list>
-#include <string>
+```java
+public abstract class Component {
+    protected Component parent;
 
-class Component {
-public:
-    virtual ~Component() = default;
-
-    void SetParent(Component *parent) {
-        _parent = parent;
+    public Component getParent() {
+        return parent;
     }
 
-    Component *GetParent() const {
-        return _parent;
+    public void setParent(Component parent) {
+        this.parent = parent;
     }
 
-    virtual void Add(Component *component) {}
+    void add(Component component) {
+    }
 
-    virtual void Remove(Component *component) {}
+    void remove(Component component) {
+    }
 
-    virtual bool IsComposite() const {
+    boolean isComposite() {
         return false;
     }
 
-    virtual std::string Operation() const = 0;
+    abstract public String operation();
+}
+```
 
-private:
-    Component *_parent{};
-};
-
-class Leaf : public Component {
-public:
-    std::string Operation() const override {
-        return "Leaf: Operation";
+```java
+public class Leaf extends Component {
+    @Override
+    public String operation() {
+        return "Leaf: operation";
     }
-};
+}
+```
 
-class Composite : public Component {
-public:
-    void Add(Component *component) override {
-        _children.push_back(component);
-        component->SetParent(this);
+```java
+import java.util.ArrayList;
+import java.util.List;
+
+public class Composite extends Component {
+    private final List<Component> children = new ArrayList<>();
+
+    @Override
+    void add(Component component) {
+        children.add(component);
+        component.setParent(this);
     }
 
-    void Remove(Component *component) override {
-        _children.remove(component);
-        component->SetParent(nullptr);
+    @Override
+    void remove(Component component) {
+        children.remove(component);
+        component.setParent(null);
     }
 
-    bool IsComposite() const override {
+    @Override
+    boolean isComposite() {
         return true;
     }
 
-    std::string Operation() const override {
-        std::string result;
-        for (const Component *c: _children) {
-            if (c == _children.back()) {
-                result += c->Operation();
-            } else {
-                result += c->Operation() + "+";
-            }
+    @Override
+    public String operation() {
+        StringBuilder sb = new StringBuilder();
+        for (Component child : children) {
+            sb.append(child.operation());
         }
-        return result;
+        return sb.toString();
     }
-
-private:
-    std::list<Component *> _children;
-};
+}
 ```
 
 ### 装饰模式
