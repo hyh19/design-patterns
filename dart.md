@@ -758,70 +758,51 @@ public class ConcreteColleague2 extends Colleague {
 
 ### 备忘录模式
 
-```java
-public class Memento {
-    private final int state;
+```dart
+import 'dart:math';
 
-    public Memento(int state) {
-        this.state = state;
-    }
+class Memento {
+  final int state;
 
-    public int getState() {
-        return state;
-    }
+  Memento(this.state);
 }
-```
 
-```java
-import java.util.Random;
+class Originator {
+  int _state;
 
-public class Originator {
-    private int state;
+  Originator(this._state);
 
-    public Originator(int state) {
-        this.state = state;
-    }
+  int get state => _state;
 
-    public int getState() {
-        return state;
-    }
+  Memento save() {
+    return Memento(_state);
+  }
 
-    public Memento save() {
-        return new Memento(state);
-    }
+  void restore(Memento memento) {
+    _state = memento.state;
+  }
 
-    public void restore(Memento memento) {
-        state = memento.getState();
-    }
-
-    public void doSomething() {
-        state = (new Random()).nextInt();
-    }
+  void doSomething() {
+    _state = Random().nextInt(100);
+  }
 }
-```
 
-```java
-import java.util.Deque;
-import java.util.LinkedList;
+class Caretaker {
+  final List<Memento> _mementos = [];
+  final Originator _originator;
 
-public class Caretaker {
-    private final Deque<Memento> mementos = new LinkedList<>();
-    private final Originator originator;
+  Caretaker(this._originator);
 
-    public Caretaker(Originator originator) {
-        this.originator = originator;
+  void backup() {
+    _mementos.add(_originator.save());
+  }
+
+  void undo() {
+    if (_mementos.isEmpty) {
+      return;
     }
-
-    public void backup() {
-        mementos.push(originator.save());
-    }
-
-    public void undo() {
-        if (mementos.isEmpty()) {
-            return;
-        }
-        originator.restore(mementos.pop());
-    }
+    _originator.restore(_mementos.removeLast());
+  }
 }
 ```
 
