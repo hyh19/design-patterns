@@ -621,63 +621,58 @@ public class ConcreteHandler2 extends Handler {
 
 ### 命令模式
 
-```java
-public interface Command {
-    void execute();
+```dart
+abstract class Command {
+  void execute();
 }
-```
 
-```java
-public class SimpleCommand implements Command {
-    private final String payload;
+class SimpleCommand implements Command {
+  final String payload;
 
-    public SimpleCommand(String payload) {
-        this.payload = payload;
-    }
+  SimpleCommand(this.payload);
 
-    @Override
-    public void execute() {
-        System.out.println("SimpleCommand: execute" + payload);
-    }
+  @override
+  void execute() {
+    print("SimpleCommand: execute$payload");
+  }
 }
-```
 
-```java
-public class ComplexCommand implements Command {
-    private final Receiver receiver;
-    private final String a;
-    private final String b;
+class Receiver {
+  void doSomethingA(String a) {
+    print("Receiver: doSomethingA ($a)");
+  }
 
-    public ComplexCommand(Receiver receiver, String a, String b) {
-        this.receiver = receiver;
-        this.a = a;
-        this.b = b;
-    }
-
-    @Override
-    public void execute() {
-        System.out.println("ComplexCommand: execute");
-        receiver.doSomethingA(a);
-        receiver.doSomethingB(b);
-    }
+  void doSomethingB(String b) {
+    print("Receiver: doSomethingB ($b)");
+  }
 }
-```
 
-```java
-public class Invoker {
-    private final Command onStart;
-    private final Command onFinish;
+class ComplexCommand implements Command {
+  final Receiver _receiver;
+  final String _a;
+  final String _b;
 
-    public Invoker(Command onStart, Command onFinish) {
-        this.onStart = onStart;
-        this.onFinish = onFinish;
-    }
+  ComplexCommand(this._receiver, this._a, this._b);
 
-    void doSomething() {
-        onStart.execute();
-        System.out.println("Invoker: doSomething");
-        onFinish.execute();
-    }
+  @override
+  void execute() {
+    print("ComplexCommand: execute");
+    _receiver.doSomethingA(_a);
+    _receiver.doSomethingB(_b);
+  }
+}
+
+class Invoker {
+  final Command _onStart;
+  final Command _onFinish;
+
+  Invoker(this._onStart, this._onFinish);
+
+  void doSomething() {
+    _onStart.execute();
+    print("Invoker: doSomething");
+    _onFinish.execute();
+  }
 }
 ```
 
