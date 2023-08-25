@@ -886,63 +886,57 @@ public class ConcreteObserver implements Observer {
 
 ### 状态模式
 
-```java
-public interface State {
-    void handle1(Context context);
+```dart
+abstract class State {
+  void handle1(Context context);
 
-    void handle2(Context context);
+  void handle2(Context context);
 }
-```
 
-```java
-public class ConcreteStateA implements State {
-    @Override
-    public void handle1(Context context) {
-        System.out.println("ConcreteStateA: handle1");
-        context.transitionTo(new ConcreteStateB());
-    }
+class ConcreteStateA implements State {
+  @override
+  void handle1(Context context) {
+    print("ConcreteStateA: handle1");
+    context.transitionTo(ConcreteStateB());
+  }
 
-    @Override
-    public void handle2(Context context) {
-        System.out.println("ConcreteStateA: handle2");
-    }
+  @override
+  void handle2(Context context) {
+    print("ConcreteStateA: handle2");
+  }
 }
-```
 
-```java
-public class ConcreteStateB implements State {
-    @Override
-    public void handle1(Context context) {
-        System.out.println("ConcreteStateB: handle1");
-    }
+class ConcreteStateB implements State {
+  @override
+  void handle1(Context context) {
+    print("ConcreteStateB: handle1");
+  }
 
-    @Override
-    public void handle2(Context context) {
-        System.out.println("ConcreteStateB: handle2");
-        context.transitionTo(new ConcreteStateA());
-    }
+  @override
+  void handle2(Context context) {
+    print("ConcreteStateB: handle2");
+    context.transitionTo(ConcreteStateA());
+  }
 }
-```
 
-```java
-public class Context {
-    private State state;
+class Context {
+  late State state;
 
-    public Context(State state) {
-        transitionTo(state);
-    }
+  Context(State state) {
+    transitionTo(state);
+  }
 
-    public void transitionTo(State state) {
-        this.state = state;
-    }
+  void transitionTo(State state) {
+    this.state = state;
+  }
 
-    public void request1() {
-        state.handle1(this);
-    }
+  void request1() {
+    state.handle1(this);
+  }
 
-    public void request2() {
-        state.handle2(this);
-    }
+  void request2() {
+    state.handle2(this);
+  }
 }
 ```
 
