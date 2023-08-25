@@ -591,7 +591,42 @@ public class ConcreteDecoratorB extends Decorator {
 
 ### 享元模式
 
-<!-- TODO -->
+```java
+import java.util.List;
+
+class BigData {
+}
+
+public class Flyweight {
+    private final BigData sharedState;
+
+    public Flyweight(BigData data) {
+        this.sharedState = data;
+    }
+
+    public void operation(List<String> uniqueState) {
+        System.out.println("Flyweight: operation");
+        System.out.println(sharedState);
+        System.out.println(uniqueState);
+    }
+}
+```
+
+```java
+import java.util.HashMap;
+import java.util.Map;
+
+public class FlyweightFactory {
+    private final Map<String, Flyweight> flyweights = new HashMap<>();
+
+    public Flyweight getFlyweight(String key) {
+        if (!flyweights.containsKey(key)) {
+            flyweights.put(key, new Flyweight(new BigData()));
+        }
+        return flyweights.get(key);
+    }
+}
+```
 
 ### 代理模式
 
