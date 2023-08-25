@@ -478,61 +478,47 @@ public class Composite extends Component {
 
 ### 装饰模式
 
-```java
-public interface Component {
-    void operation();
+```dart
+abstract class Component {
+  void operation();
 }
-```
 
-```java
-public class ConcreteComponent implements Component {
-    @Override
-    public void operation() {
-        System.out.println("ConcreteComponent: operation");
-    }
+class ConcreteComponent implements Component {
+  @override
+  void operation() {
+    print("ConcreteComponent: operation");
+  }
 }
-```
 
-```java
-public abstract class Decorator implements Component {
-    private final Component component;
+abstract class Decorator implements Component {
+  final Component _component;
 
-    public Decorator(Component component) {
-        this.component = component;
-    }
+  Decorator(this._component);
 
-    @Override
-    public void operation() {
-        component.operation();
-    }
+  @override
+  void operation() {
+    _component.operation();
+  }
 }
-```
 
-```java
-public class ConcreteDecoratorA extends Decorator {
-    public ConcreteDecoratorA(Component component) {
-        super(component);
-    }
+class ConcreteDecoratorA extends Decorator {
+  ConcreteDecoratorA(super.component);
 
-    @Override
-    public void operation() {
-        super.operation();
-        System.out.println("ConcreteDecoratorA: operation");
-    }
+  @override
+  void operation() {
+    super.operation();
+    print("ConcreteDecoratorA: operation");
+  }
 }
-```
 
-```java
-public class ConcreteDecoratorB extends Decorator {
-    public ConcreteDecoratorB(Component component) {
-        super(component);
-    }
+class ConcreteDecoratorB extends Decorator {
+  ConcreteDecoratorB(super.component);
 
-    @Override
-    public void operation() {
-        super.operation();
-        System.out.println("ConcreteDecoratorB: operation");
-    }
+  @override
+  void operation() {
+    super.operation();
+    print("ConcreteDecoratorB: operation");
+  }
 }
 ```
 
