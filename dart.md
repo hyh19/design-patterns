@@ -222,115 +222,82 @@ class Director {
 
 ### 原型模式
 
-```java
-import java.util.Objects;
+```dart
+abstract class Shape {
+  final int x;
+  final int y;
+  final String color;
 
-public abstract class Shape {
-    public int x;
-    public int y;
-    public String color;
+  Shape({
+    required this.x,
+    required this.y,
+    required this.color,
+  });
 
-    protected Shape() {
-    }
-
-    protected Shape(Shape target) {
-        this.x = target.x;
-        this.y = target.y;
-        this.color = target.color;
-    }
-
-    public abstract Shape clone();
-
-    @Override
-    public boolean equals(Object obj) {
-        if (obj instanceof Shape) {
-            Shape shape = (Shape) obj;
-            return this.x == shape.x && this.y == shape.y && Objects.equals(this.color, shape.color);
-        }
-        return false;
-    }
+  Shape clone();
 }
-```
 
-```java
-public class Rectangle extends Shape {
-    public int width;
-    public int height;
+class Rectangle extends Shape {
+  final int width;
+  final int height;
 
-    public Rectangle() {
-    }
+  Rectangle({
+    required super.x,
+    required super.y,
+    required super.color,
+    required this.width,
+    required this.height,
+  });
 
-    protected Rectangle(Rectangle target) {
-        super(target);
-        this.width = target.width;
-        this.height = target.height;
-    }
-
-    @Override
-    public Rectangle clone() {
-        return new Rectangle(this);
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (obj instanceof Rectangle && super.equals(obj)) {
-            Rectangle rectangle = (Rectangle) obj;
-            return this.width == rectangle.width && this.height == rectangle.height;
-        }
-        return false;
-    }
+  @override
+  Rectangle clone() {
+    return Rectangle(
+      x: x,
+      y: y,
+      color: color,
+      width: width,
+      height: height,
+    );
+  }
 }
-```
 
-```java
-public class Circle extends Shape {
-    public int radius;
+class Circle extends Shape {
+  final int radius;
 
-    public Circle() {
-    }
+  Circle({
+    required super.x,
+    required super.y,
+    required super.color,
+    required this.radius,
+  });
 
-    protected Circle(Circle target) {
-        super(target);
-        this.radius = target.radius;
-    }
-
-    @Override
-    public Circle clone() {
-        return new Circle(this);
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (obj instanceof Circle && super.equals(obj)) {
-            Circle circle = (Circle) obj;
-            return this.radius == circle.radius;
-        }
-        return false;
-    }
+  @override
+  Circle clone() {
+    return Circle(
+      x: x,
+      y: y,
+      color: color,
+      radius: radius,
+    );
+  }
 }
 ```
 
 ### 单例模式
 
-```java
-public final class Singleton {
-    private static volatile Singleton instance;
+```dart
+class Singleton {
+  static Singleton? _instance;
 
-    private Singleton() {
-    }
+  Singleton._internal();
 
-    public static Singleton getInstance() {
-        Singleton result = instance;
-        if (result != null) {
-            return result;
-        }
-        synchronized (Singleton.class) {
-            if (instance == null) {
-                instance = new Singleton();
-            }
-            return instance;
-        }
-    }
+  factory Singleton._getInstance() {
+    _instance ??= Singleton._internal();
+
+    return _instance!;
+  }
+
+  static Singleton get instance => Singleton._getInstance();
 }
 ```
 
