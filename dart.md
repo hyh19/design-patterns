@@ -474,7 +474,40 @@ class ConcreteDecoratorB extends Decorator {
 
 ### 享元模式
 
-<!-- TODO -->
+```dart
+import 'dart:math';
+
+class BigData {
+  final List<int> _nums = [];
+
+  BigData() {
+    for (var i = 0; i < 1000000; ++i) {
+      _nums.add(Random().nextInt(100));
+    }
+  }
+}
+
+class Flyweight {
+  final BigData sharedState;
+
+  Flyweight(this.sharedState);
+
+  void operation(List<String> uniqueState) {
+    print("Flyweight: operation");
+    print(sharedState);
+    print(uniqueState);
+  }
+}
+
+class FlyweightFactory {
+  final Map<String, Flyweight> flyweights = {};
+
+  Flyweight getFlyweight(String key) {
+    flyweights.putIfAbsent(key, () => Flyweight(BigData()));
+    return flyweights[key]!;
+  }
+}
+```
 
 ### 代理模式
 
