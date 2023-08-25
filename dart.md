@@ -1045,62 +1045,52 @@ public class ConcreteClass extends AbstractClass {
 
 ### 访问者模式
 
-```java
-public interface Element {
-    void accept(Visitor visitor);
+```dart
+abstract class Element {
+  void accept(Visitor visitor);
 }
-```
 
-```java
-public class ConcreteElementA implements Element {
-    @Override
-    public void accept(Visitor visitor) {
-        visitor.visitConcreteElementA(this);
-    }
+class ConcreteElementA implements Element {
+  @override
+  void accept(Visitor visitor) {
+    visitor.visitConcreteElementA(this);
+  }
 }
-```
 
-```java
-public class ConcreteElementB implements Element {
-    @Override
-    public void accept(Visitor visitor) {
-        visitor.visitConcreteElementB(this);
-    }
+class ConcreteElementB implements Element {
+  @override
+  void accept(Visitor visitor) {
+    visitor.visitConcreteElementB(this);
+  }
 }
-```
 
-```java
-public interface Visitor {
-    void visitConcreteElementA(ConcreteElementA element);
+abstract class Visitor {
+  void visitConcreteElementA(ConcreteElementA element);
 
-    void visitConcreteElementB(ConcreteElementB element);
+  void visitConcreteElementB(ConcreteElementB element);
 }
-```
 
-```java
-public class ConcreteVisitor1 implements Visitor {
-    @Override
-    public void visitConcreteElementA(ConcreteElementA element) {
-        System.out.println("ConcreteVisitor1: visitConcreteElementA");
-    }
+class ConcreteVisitor1 implements Visitor {
+  @override
+  void visitConcreteElementA(ConcreteElementA element) {
+    print("ConcreteVisitor1: visitConcreteElementA");
+  }
 
-    @Override
-    public void visitConcreteElementB(ConcreteElementB element) {
-        System.out.println("ConcreteVisitor1: visitConcreteElementB");
-    }
+  @override
+  void visitConcreteElementB(ConcreteElementB element) {
+    print("ConcreteVisitor1: visitConcreteElementB");
+  }
 }
-```
 
-```java
-public class ConcreteVisitor2 implements Visitor {
-    @Override
-    public void visitConcreteElementA(ConcreteElementA element) {
-        System.out.println("ConcreteVisitor2: visitConcreteElementA");
-    }
+class ConcreteVisitor2 implements Visitor {
+  @override
+  void visitConcreteElementA(ConcreteElementA element) {
+    print("ConcreteVisitor2: visitConcreteElementA");
+  }
 
-    @Override
-    public void visitConcreteElementB(ConcreteElementB element) {
-        System.out.println("ConcreteVisitor2: visitConcreteElementB");
-    }
+  @override
+  void visitConcreteElementB(ConcreteElementB element) {
+    print("ConcreteVisitor2: visitConcreteElementB");
+  }
 }
 ```
