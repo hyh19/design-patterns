@@ -257,60 +257,115 @@ public class Director {
 
 ### 原型模式
 
-```cpp
-#include <unordered_map>
+```java
+import java.util.Objects;
 
-class Prototype {
-public:
+public abstract class Shape {
+    public int x;
+    public int y;
+    public String color;
 
-    virtual ~Prototype() = default;
-
-    virtual Prototype *Clone() const = 0;
-};
-
-class ConcretePrototype1 : public Prototype {
-public:
-    Prototype *Clone() const override {
-        return new ConcretePrototype1(*this);
+    protected Shape() {
     }
-};
 
-class ConcretePrototype2 : public Prototype {
-public:
-    Prototype *Clone() const override {
-        return new ConcretePrototype2(*this);
+    protected Shape(Shape target) {
+        this.x = target.x;
+        this.y = target.y;
+        this.color = target.color;
     }
-};
+
+    public abstract Shape clone();
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof Shape) {
+            Shape shape = (Shape) obj;
+            return this.x == shape.x && this.y == shape.y && Objects.equals(this.color, shape.color);
+        }
+        return false;
+    }
+}
+```
+
+```java
+public class Rectangle extends Shape {
+    public int width;
+    public int height;
+
+    public Rectangle() {
+    }
+
+    protected Rectangle(Rectangle target) {
+        super(target);
+        this.width = target.width;
+        this.height = target.height;
+    }
+
+    @Override
+    public Rectangle clone() {
+        return new Rectangle(this);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof Rectangle && super.equals(obj)) {
+            Rectangle rectangle = (Rectangle) obj;
+            return this.width == rectangle.width && this.height == rectangle.height;
+        }
+        return false;
+    }
+}
+```
+
+```java
+public class Circle extends Shape {
+    public int radius;
+
+    public Circle() {
+    }
+
+    protected Circle(Circle target) {
+        super(target);
+        this.radius = target.radius;
+    }
+
+    @Override
+    public Circle clone() {
+        return new Circle(this);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof Circle && super.equals(obj)) {
+            Circle circle = (Circle) obj;
+            return this.radius == circle.radius;
+        }
+        return false;
+    }
+}
 ```
 
 ### 单例模式
 
-```cpp
-#include <string>
+```java
+public final class Singleton {
+    private static volatile Singleton instance;
 
-class Singleton {
-public:
-    Singleton(const Singleton &other) = delete;
-
-    Singleton &operator=(const Singleton &other) = delete;
-
-    static Singleton *GetInstance();
-
-private:
-    Singleton() = default;
-
-    ~Singleton() = default;
-
-    static Singleton *_singleton;
-};
-
-Singleton *Singleton::_singleton = nullptr;
-
-Singleton *Singleton::GetInstance() {
-    if (_singleton == nullptr) {
-        _singleton = new Singleton();
+    private Singleton() {
     }
-    return _singleton;
+
+    public static Singleton getInstance() {
+        Singleton result = instance;
+        if (result != null) {
+            return result;
+        }
+        synchronized (Singleton.class) {
+            if (instance == null) {
+                instance = new Singleton();
+            }
+            return instance;
+        }
+    }
 }
 ```
 
