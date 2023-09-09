@@ -827,69 +827,72 @@ private:
 
 ```cpp
 #include <string>
+#include <iostream>
 
-class BaseComponent;
+class Colleague;
 
 class Mediator {
 public:
-    virtual void Notify(BaseComponent *sender, const std::string &event) const = 0;
+    virtual void Notify(Colleague *sender, const std::string &event) const = 0;
 };
 
-class BaseComponent {
+class Colleague {
 public:
-    explicit BaseComponent(Mediator *mediator = nullptr) : _mediator(mediator) {
-    }
-
     void SetMediator(Mediator *mediator) {
         _mediator = mediator;
     }
 
 protected:
-    Mediator *_mediator;
+    Mediator *_mediator{};
 };
 
-class Component1 : public BaseComponent {
+class ConcreteColleague1 : public Colleague {
 public:
     void DoA() {
+        std::cout << "ConcreteColleague1: DoA";
         _mediator->Notify(this, "A");
     }
 
     void DoB() {
+        std::cout << "ConcreteColleague1: DoB";
         _mediator->Notify(this, "B");
     }
 };
 
-class Component2 : public BaseComponent {
+class ConcreteColleague2 : public Colleague {
 public:
     void DoC() {
+        std::cout << "ConcreteColleague2: DoC";
         _mediator->Notify(this, "C");
     }
 
     void DoD() {
+        std::cout << "ConcreteColleague2: DoD";
         _mediator->Notify(this, "D");
     }
 };
 
 class ConcreteMediator : public Mediator {
 public:
-    ConcreteMediator(Component1 *c1, Component2 *c2) : _component1(c1), _component2(c2) {
-        _component1->SetMediator(this);
-        _component2->SetMediator(this);
+    ConcreteMediator(ConcreteColleague1 *colleague1, ConcreteColleague2 *colleague2) : _colleague1(colleague1),
+                                                                                       _colleague2(colleague2) {
+        _colleague1->SetMediator(this);
+        _colleague2->SetMediator(this);
     }
 
-    void Notify(BaseComponent *sender, const std::string &event) const override {
+    void Notify(Colleague *sender, const std::string &event) const override {
         if (event == "A") {
-            _component2->DoC();
+            _colleague2->DoC();
         }
         if (event == "D") {
-            _component1->DoB();
-            _component2->DoC();
+            _colleague1->DoB();
+            _colleague2->DoC();
         }
     }
 
 private:
-    Component1 *_component1;
-    Component2 *_component2;
+    ConcreteColleague1 *_colleague1;
+    ConcreteColleague2 *_colleague2;
 };
 ```
 

@@ -658,28 +658,28 @@ from typing import Optional
 
 class Mediator(ABC):
     @abstractmethod
-    def notify(self, sender: Component, event: str) -> None:
+    def notify(self, sender: Colleague, event: str) -> None:
         pass
 
 
 class ConcreteMediator(Mediator):
-    def __init__(self, component1: ConcreteComponent1, component2: ConcreteComponent2) -> None:
-        self._component1 = component1
-        self._component2 = component2
-        self._component1.mediator = self
-        self._component2.mediator = self
+    def __init__(self, colleague1: ConcreteColleague1, colleague2: ConcreteColleague2) -> None:
+        self._colleague1 = colleague1
+        self._colleague2 = colleague2
+        self._colleague1.mediator = self
+        self._colleague2.mediator = self
 
-    def notify(self, sender: Component, event: str) -> None:
+    def notify(self, sender: Colleague, event: str) -> None:
         if event == "A":
-            self._component2.do_c()
+            self._colleague2.do_c()
         elif event == "D":
-            self._component1.do_b()
-            self._component2.do_c()
+            self._colleague1.do_b()
+            self._colleague2.do_c()
 
 
-class Component(ABC):
-    def __init__(self, mediator: Optional[Mediator] = None) -> None:
-        self._mediator = mediator
+class Colleague(ABC):
+    def __init__(self) -> None:
+        self._mediator: Optional[Mediator] = None
 
     @property
     def mediator(self) -> Optional[Mediator]:
@@ -690,29 +690,28 @@ class Component(ABC):
         self._mediator = mediator
 
 
-class ConcreteComponent1(Component):
+class ConcreteColleague1(Colleague):
     def do_a(self) -> None:
-        print("ConcreteComponent1: do_a")
+        print("ConcreteColleague1: do_a")
         assert self.mediator is not None
         self.mediator.notify(self, "A")
 
     def do_b(self) -> None:
-        print("ConcreteComponent1: do_b")
+        print("ConcreteColleague1: do_b")
         assert self.mediator is not None
         self.mediator.notify(self, "B")
 
 
-class ConcreteComponent2(Component):
+class ConcreteColleague2(Colleague):
     def do_c(self) -> None:
-        print("ConcreteComponent2: do_c")
+        print("ConcreteColleague2: do_c")
         assert self.mediator is not None
         self.mediator.notify(self, "C")
 
     def do_d(self) -> None:
-        print("ConcreteComponent2: do_d")
+        print("ConcreteColleague2: do_d")
         assert self.mediator is not None
         self.mediator.notify(self, "D")
-
 ```
 
 ### 备忘录模式
