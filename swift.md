@@ -738,32 +738,32 @@ class WordsIterator: IteratorProtocol {
 ```swift
 protocol Mediator: AnyObject {
 
-    func notify(sender: Component, event: String)
+    func notify(sender: Colleague, event: String)
 }
 
 class ConcreteMediator: Mediator {
 
-    private var component1: ConcreteComponent1
-    private var component2: ConcreteComponent2
+    private var colleague1: ConcreteColleague1
+    private var colleague2: ConcreteColleague2
 
-    init(_ component1: ConcreteComponent1, _ component2: ConcreteComponent2) {
-        self.component1 = component1
-        self.component2 = component2
-        component1.update(mediator: self)
-        component2.update(mediator: self)
+    init(_ colleague1: ConcreteColleague1, _ colleague2: ConcreteColleague2) {
+        self.colleague1 = colleague1
+        self.colleague2 = colleague2
+        colleague1.update(mediator: self)
+        colleague2.update(mediator: self)
     }
 
-    func notify(sender: Component, event: String) {
+    func notify(sender: Colleague, event: String) {
         if event == "A" {
-            self.component2.doC()
+            colleague2.doC()
         } else if (event == "D") {
-            self.component1.doB()
-            self.component2.doC()
+            colleague1.doB()
+            colleague2.doC()
         }
     }
 }
 
-class Component {
+class Colleague {
 
     fileprivate weak var mediator: Mediator?
 
@@ -776,28 +776,28 @@ class Component {
     }
 }
 
-class ConcreteComponent1: Component {
+class ConcreteColleague1: Colleague {
 
     func doA() {
-        print("ConcreteComponent1: doA")
+        print("ConcreteColleague1: doA")
         mediator?.notify(sender: self, event: "A")
     }
 
     func doB() {
-        print("ConcreteComponent1: doA")
+        print("ConcreteColleague1: doA")
         mediator?.notify(sender: self, event: "B")
     }
 }
 
-class ConcreteComponent2: Component {
+class ConcreteColleague2: Colleague {
 
     func doC() {
-        print("ConcreteComponent2: doC")
+        print("ConcreteColleague2: doC")
         mediator?.notify(sender: self, event: "C")
     }
 
     func doD() {
-        print("ConcreteComponent2: doD")
+        print("ConcreteColleague2: doD")
         mediator?.notify(sender: self, event: "D")
     }
 }
