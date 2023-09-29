@@ -621,69 +621,44 @@ private:
 ### 责任链模式
 
 ```cpp
-#include <iostream>
 #include <string>
-#include <vector>
 
 class Handler {
 public:
-    virtual Handler *SetNext(Handler *handler) = 0;
-
-    virtual std::string Handle(std::string request) const = 0;
-};
-
-class AbstractHandler : public Handler {
-public:
-    AbstractHandler() : nextHandler(nullptr) {
+    virtual Handler *SetSuccessor(Handler *successor) {
+        _successor = successor;
+        return successor;
     }
 
-    Handler *SetNext(Handler *handler) override {
-        this->nextHandler = handler;
-        return handler;
-    }
-
-    std::string Handle(std::string request) const override {
-        if (this->nextHandler) {
-            return this->nextHandler->Handle(request);
+    virtual std::string HandleRequest(const std::string &request) const {
+        if (_successor) {
+            return _successor->HandleRequest(request);
         }
 
         return {};
     }
 
 private:
-    Handler *nextHandler;
+    Handler *_successor{};
 };
 
-class ConcreteHandler1 : public AbstractHandler {
+class ConcreteHandler1 : public Handler {
 public:
-    std::string Handle(std::string request) const override {
+    std::string HandleRequest(const std::string &request) const override {
         if (request == "request1") {
-            return "ConcreteHandler1: Handle" + request;
-        } else {
-            return AbstractHandler::Handle(request);
+            return "ConcreteHandler1: HandleRequest" + request;
         }
+        return Handler::HandleRequest(request);
     }
 };
 
-class ConcreteHandler2 : public AbstractHandler {
+class ConcreteHandler2 : public Handler {
 public:
-    std::string Handle(std::string request) const override {
+    std::string HandleRequest(const std::string &request) const override {
         if (request == "request2") {
-            return "ConcreteHandler2: Handle" + request;
-        } else {
-            return AbstractHandler::Handle(request);
+            return "ConcreteHandler2: HandleRequest" + request;
         }
-    }
-};
-
-class ConcreteHandler3 : public AbstractHandler {
-public:
-    std::string Handle(std::string request) const override {
-        if (request == "request3") {
-            return "ConcreteHandler3: Handle" + request;
-        } else {
-            return AbstractHandler::Handle(request);
-        }
+        return Handler::HandleRequest(request);
     }
 };
 ```
