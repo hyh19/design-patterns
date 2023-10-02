@@ -576,7 +576,7 @@ protocol Handler: AnyObject {
 extension Handler {
 
     func setNext(handler: Handler) -> Handler {
-        self.nextHandler = handler
+        nextHandler = handler
         return handler
     }
 
@@ -591,10 +591,9 @@ class ConcreteHandler1: Handler {
 
     func handle(request: String) -> String? {
         if request == "request1" {
-            return "ConcreteHandler1: \(request)"
-        } else {
-            return nextHandler?.handle(request: request)
+            return "ConcreteHandler1: handle \(request)"
         }
+        return nextHandler?.handle(request: request)
     }
 }
 
@@ -604,23 +603,9 @@ class ConcreteHandler2: Handler {
 
     func handle(request: String) -> String? {
         if request == "request2" {
-            return "ConcreteHandler2: \(request)"
-        } else {
-            return nextHandler?.handle(request: request)
+            return "ConcreteHandler2: handle \(request)"
         }
-    }
-}
-
-class ConcreteHandler3: Handler {
-
-    var nextHandler: Handler?
-
-    func handle(request: String) -> String? {
-        if request == "request3" {
-            return "ConcreteHandler3: \(request)"
-        } else {
-            return nextHandler?.handle(request: request)
-        }
+        return nextHandler?.handle(request: request)
     }
 }
 ```

@@ -625,7 +625,9 @@ private:
 
 class Handler {
 public:
-    virtual Handler *SetSuccessor(Handler *successor) {
+    virtual ~Handler() = default;
+
+    Handler *SetSuccessor(Handler *successor) {
         _successor = successor;
         return successor;
     }
@@ -646,7 +648,7 @@ class ConcreteHandler1 : public Handler {
 public:
     std::string HandleRequest(const std::string &request) const override {
         if (request == "request1") {
-            return "ConcreteHandler1: HandleRequest" + request;
+            return "ConcreteHandler1: handle" + request;
         }
         return Handler::HandleRequest(request);
     }
@@ -656,7 +658,7 @@ class ConcreteHandler2 : public Handler {
 public:
     std::string HandleRequest(const std::string &request) const override {
         if (request == "request2") {
-            return "ConcreteHandler2: HandleRequest" + request;
+            return "ConcreteHandler2: handle" + request;
         }
         return Handler::HandleRequest(request);
     }
