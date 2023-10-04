@@ -895,93 +895,60 @@ class Proxy implements Subject
 ```php
 <?php
 
-interface Handler
-{
-    /**
-     * @param Handler $handler
-     * @return Handler
-     */
-    public function setNext(Handler $handler): Handler;
-
-    /**
-     * @param string $request
-     * @return string|null
-     */
-    public function handle(string $request): ?string;
-}
-
-abstract class BaseHandler implements Handler
+abstract class Handler
 {
     /**
      * @var Handler|null
      */
-    private ?Handler $nextHandler;
+    private ?Handler $successor;
 
     /**
-     * @param Handler $handler
+     * @param Handler $successor
      * @return Handler
      */
-    public function setNext(Handler $handler): Handler
+    public function setSuccessor(Handler $successor): Handler
     {
-        $this->nextHandler = $handler;
-        return $handler;
+        $this->successor = $successor;
+        return $successor;
     }
 
     /**
      * @param string $request
      * @return string|null
      */
-    public function handle(string $request): ?string
+    public function handleRequest(string $request): ?string
     {
-        return $this->nextHandler?->handle($request);
+        return $this->successor?->handleRequest($request);
     }
 }
 
-class ConcreteHandler1 extends BaseHandler
+class ConcreteHandler1 extends Handler
 {
     /**
      * @param string $request
      * @return string|null
      */
-    public function handle(string $request): ?string
+    public function handleRequest(string $request): ?string
     {
         if ($request === "request1") {
-            return "ConcreteHandler1:" . $request;
-        } else {
-            return parent::handle($request);
+            return "ConcreteHandler1: handle" . $request;
         }
+        return parent::handleRequest($request);
     }
 }
 
-class ConcreteHandler2 extends BaseHandler
+class ConcreteHandler2 extends Handler
 {
     /**
      * @param string $request
      * @return string|null
      */
-    public function handle(string $request): ?string
+    public function handleRequest(string $request): ?string
     {
         if ($request === "request2") {
-            return "ConcreteHandler3:" . $request;
-        } else {
-            return parent::handle($request);
+            return "ConcreteHandler2: handle" . $request;
         }
-    }
-}
-
-class ConcreteHandler3 extends BaseHandler
-{
-    /**
-     * @param string $request
-     * @return string|null
-     */
-    public function handle(string $request): ?string
-    {
-        if ($request === "request3") {
-            return "ConcreteHandler3:" . $request;
-        } else {
-            return parent::handle($request);
-        }
+        return parent::handleRequest($request);
     }
 }
 ```
