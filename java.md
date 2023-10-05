@@ -674,35 +674,31 @@ public abstract class Handler {
         return handler;
     }
 
-    public String handle(String request) {
+    public String handleRequest(String request) {
         if (successor != null) {
-            return successor.handle(request);
+            return successor.handleRequest(request);
         }
         return null;
     }
 }
-```
 
-```java
-public class ConcreteHandler1 extends Handler{
+public class ConcreteHandler1 extends Handler {
     @Override
-    public String handle(String request) {
+    public String handleRequest(String request) {
         if (request.equals("request1")) {
             return "ConcreteHandler1: handle" + request;
         }
-        return super.handle(request);
+        return super.handleRequest(request);
     }
 }
-```
 
-```java
 public class ConcreteHandler2 extends Handler {
     @Override
-    public String handle(String request) {
+    public String handleRequest(String request) {
         if (request.equals("request2")) {
             return "ConcreteHandler2: handle" + request;
         }
-        return super.handle(request);
+        return super.handleRequest(request);
     }
 }
 ```
