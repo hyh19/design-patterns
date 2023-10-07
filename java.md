@@ -669,14 +669,14 @@ public class Proxy implements Subject {
 public abstract class Handler {
     private Handler successor;
 
-    public Handler setSuccessor(Handler handler) {
-        successor = handler;
-        return handler;
+    public Handler setSuccessor(Handler successor) {
+        this.successor = successor;
+        return successor;
     }
 
     public String handleRequest(String request) {
         if (successor != null) {
-            return successor.handleRequest(request);
+            successor.handleRequest(request);
         }
         return null;
     }
