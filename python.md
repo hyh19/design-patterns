@@ -497,53 +497,33 @@ from typing import Optional
 
 
 class Handler(ABC):
-    @abstractmethod
-    def set_next(self, handler: Handler) -> Handler:
-        pass
-
-    @abstractmethod
-    def handle(self, request: str) -> Optional[str]:
-        pass
-
-
-class BaseHandler(Handler):
     def __init__(self) -> None:
-        self._next_handler: Optional[Handler] = None
+        self._successor: Optional[Handler] = None
 
-    def set_next(self, handler: Handler) -> Handler:
-        self._next_handler = handler
-        return handler
+    def set_successor(self, successor: Handler) -> Handler:
+        self._successor = successor
+        return successor
 
     @abstractmethod
-    def handle(self, request: str) -> Optional[str]:
-        if self._next_handler:
-            return self._next_handler.handle(request)
+    def handle_request(self, request: str) -> Optional[str]:
+        if self._successor:
+            return self._successor.handle_request(request)
 
         return None
 
 
-class ConcreteHandler1(BaseHandler):
-    def handle(self, request: str) -> Optional[str]:
+class ConcreteHandler1(Handler):
+    def handle_request(self, request: str) -> Optional[str]:
         if request == "request1":
-            return f"ConcreteHandler1: {request}"
-        else:
-            return super().handle(request)
+            return f"ConcreteHandler1: handle {request}"
+        return super().handle_request(request)
 
 
-class ConcreteHandler2(BaseHandler):
-    def handle(self, request: str) -> Optional[str]:
+class ConcreteHandler2(Handler):
+    def handle_request(self, request: str) -> Optional[str]:
         if request == "request2":
-            return f"ConcreteHandler2: {request}"
-        else:
-            return super().handle(request)
-
-
-class ConcreteHandler3(BaseHandler):
-    def handle(self, request: str) -> Optional[str]:
-        if request == "request3":
-            return f"ConcreteHandler3: {request}"
-        else:
-            return super().handle(request)
+            return f"ConcreteHandler2: handle {request}"
+        return super().handle_request(request)
 ```
 
 ### 命令模式
