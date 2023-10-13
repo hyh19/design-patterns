@@ -542,35 +542,35 @@ class Proxy implements Subject {
 
 ```dart
 abstract class Handler {
-  Handler? successor;
+  Handler? _successor;
 
-  Handler setSuccessor(Handler handler) {
-    successor = handler;
-    return handler;
+  Handler setSuccessor(Handler successor) {
+    _successor = successor;
+    return successor;
   }
 
-  String? handle(String request) {
-    return successor?.handle(request);
+  String? handleRequest(String request) {
+    return _successor?.handleRequest(request);
   }
 }
 
 class ConcreteHandler1 extends Handler {
   @override
-  String? handle(String request) {
+  String? handleRequest(String request) {
     if (request == "request1") {
       return "ConcreteHandler1: handle $request";
     }
-    return super.handle(request);
+    return super.handleRequest(request);
   }
 }
 
 class ConcreteHandler2 extends Handler {
   @override
-  String? handle(String request) {
+  String? handleRequest(String request) {
     if (request == "request2") {
       return "ConcreteHandler2: handle $request";
     }
-    return super.handle(request);
+    return super.handleRequest(request);
   }
 }
 ```
