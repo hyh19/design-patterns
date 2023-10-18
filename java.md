@@ -86,74 +86,30 @@ public class ConcreteProduct2 implements Product {
 ### 抽象工厂模式
 
 ```java
-public interface AbstractFactory {
-    AbstractProductA createProductA();
-
-    AbstractProductB createProductB();
-}
-```
-
-```java
-public class ConcreteFactory1 implements AbstractFactory {
-    @Override
-    public AbstractProductA createProductA() {
-        return new ConcreteProductA1();
-    }
-
-    @Override
-    public AbstractProductB createProductB() {
-        return new ConcreteProductB1();
-    }
-}
-```
-
-```java
-public class ConcreteFactory2 implements AbstractFactory {
-    @Override
-    public AbstractProductA createProductA() {
-        return new ConcreteProductA2();
-    }
-
-    @Override
-    public AbstractProductB createProductB() {
-        return new ConcreteProductB2();
-    }
-}
-```
-
-```java
 public interface AbstractProductA {
     String usefulFunctionA();
 }
-```
 
-```java
 public class ConcreteProductA1 implements AbstractProductA {
     @Override
     public String usefulFunctionA() {
         return "ConcreteProductA1";
     }
 }
-```
 
-```java
 public class ConcreteProductA2 implements AbstractProductA {
     @Override
     public String usefulFunctionA() {
         return "ConcreteProductA2";
     }
 }
-```
 
-```java
 public interface AbstractProductB {
     String usefulFunctionB();
 
     String anotherUsefulFunctionB(AbstractProductA collaborator);
 }
-```
 
-```java
 public class ConcreteProductB1 implements AbstractProductB {
     @Override
     public String usefulFunctionB() {
@@ -165,9 +121,7 @@ public class ConcreteProductB1 implements AbstractProductB {
         return "ConcreteProductB1" + collaborator.usefulFunctionA();
     }
 }
-```
 
-```java
 public class ConcreteProductB2 implements AbstractProductB {
     @Override
     public String usefulFunctionB() {
@@ -177,6 +131,36 @@ public class ConcreteProductB2 implements AbstractProductB {
     @Override
     public String anotherUsefulFunctionB(AbstractProductA collaborator) {
         return "ConcreteProductB2" + collaborator.usefulFunctionA();
+    }
+}
+
+public interface AbstractFactory {
+    AbstractProductA createProductA();
+
+    AbstractProductB createProductB();
+}
+
+public class ConcreteFactory1 implements AbstractFactory {
+    @Override
+    public AbstractProductA createProductA() {
+        return new ConcreteProductA1();
+    }
+
+    @Override
+    public AbstractProductB createProductB() {
+        return new ConcreteProductB1();
+    }
+}
+
+public class ConcreteFactory2 implements AbstractFactory {
+    @Override
+    public AbstractProductA createProductA() {
+        return new ConcreteProductA2();
+    }
+
+    @Override
+    public AbstractProductB createProductB() {
+        return new ConcreteProductB2();
     }
 }
 ```
