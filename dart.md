@@ -159,11 +159,11 @@ class ConcreteProductB2 implements AbstractProductB {
 
 ```dart
 abstract class Builder {
-  void producePartA();
+  void buildPartA();
 
-  void producePartB();
+  void buildPartB();
 
-  void producePartC();
+  void buildPartC();
 }
 
 class ConcreteBuilder implements Builder {
@@ -174,17 +174,17 @@ class ConcreteBuilder implements Builder {
   }
 
   @override
-  void producePartA() {
+  void buildPartA() {
     _product.addPart("PartA");
   }
 
   @override
-  void producePartB() {
+  void buildPartB() {
     _product.addPart("PartB");
   }
 
   @override
-  void producePartC() {
+  void buildPartC() {
     _product.addPart("PartC");
   }
 
@@ -200,7 +200,7 @@ class ConcreteBuilder implements Builder {
 }
 
 class Product {
-  final List<String> _parts = [];
+  late final List<String> _parts = [];
 
   void addPart(String part) {
     _parts.add(part);
@@ -209,13 +209,13 @@ class Product {
 
 class Director {
   static void buildMinimalViableProduct(Builder builder) {
-    builder.producePartA();
+    builder.buildPartA();
   }
 
   static void buildFullFeaturedProduct(Builder builder) {
-    builder.producePartA();
-    builder.producePartB();
-    builder.producePartC();
+    builder.buildPartA();
+    builder.buildPartB();
+    builder.buildPartC();
   }
 }
 ```
@@ -334,39 +334,39 @@ class Adapter extends Target {
 
 ```dart
 class Abstraction {
-  final Implementation _implementation;
+  final Implementor _imp;
 
-  Abstraction(this._implementation);
+  Abstraction(this._imp);
 
   String operation() {
-    return _implementation.operationImplementation();
+    return _imp.operationImp();
   }
 }
 
-class ExtendedAbstraction extends Abstraction {
-  ExtendedAbstraction(super.implementation);
+class RefinedAbstraction extends Abstraction {
+  RefinedAbstraction(super.implementation);
 
   @override
   String operation() {
-    return "ExtendedAbstraction${super.operation()}";
+    return "RefinedAbstraction${super.operation()}";
   }
 }
 
-abstract class Implementation {
-  String operationImplementation();
+abstract class Implementor {
+  String operationImp();
 }
 
-class ConcreteImplementationA implements Implementation {
+class ConcreteImplementorA implements Implementor {
   @override
-  String operationImplementation() {
-    return "ConcreteImplementationA";
+  String operationImp() {
+    return "ConcreteImplementorA";
   }
 }
 
-abstract class ConcreteImplementationB implements Implementation {
+abstract class ConcreteImplementorB implements Implementor {
   @override
-  String operationImplementation() {
-    return "ConcreteImplementationB";
+  String operationImp() {
+    return "ConcreteImplementorB";
   }
 }
 ```
