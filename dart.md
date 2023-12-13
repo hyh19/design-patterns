@@ -34,9 +34,9 @@
 abstract class Creator {
   Product factoryMethod();
 
-  String someOperation() {
+  void someOperation() {
     Product product = factoryMethod();
-    return product.operation();
+    product.operation();
   }
 }
 
@@ -55,20 +55,20 @@ class ConcreteCreator2 extends Creator {
 }
 
 abstract class Product {
-  String operation();
+  void operation();
 }
 
 class ConcreteProduct1 implements Product {
   @override
-  String operation() {
-    return "ConcreteProduct1";
+  void operation() {
+    print("ConcreteProduct1: operation");
   }
 }
 
 class ConcreteProduct2 implements Product {
   @override
-  String operation() {
-    return "ConcreteProduct2";
+  void operation() {
+    print("ConcreteProduct2: operation");
   }
 }
 ```
@@ -107,50 +107,52 @@ class ConcreteFactory2 implements AbstractFactory {
 }
 
 abstract class AbstractProductA {
-  String usefulFunctionA();
+  void usefulFunctionA();
 }
 
 class ConcreteProductA1 implements AbstractProductA {
   @override
-  String usefulFunctionA() {
-    return "ConcreteProductA1";
+  void usefulFunctionA() {
+    print("ConcreteProductA1: usefulFunctionA");
   }
 }
 
 class ConcreteProductA2 implements AbstractProductA {
   @override
-  String usefulFunctionA() {
-    return "ConcreteProductA2";
+  void usefulFunctionA() {
+    print("ConcreteProductA2: usefulFunctionA");
   }
 }
 
 abstract class AbstractProductB {
-  String usefulFunctionB();
+  void usefulFunctionB();
 
-  String anotherUsefulFunctionB(AbstractProductA collaborator);
+  void anotherUsefulFunctionB(AbstractProductA collaborator);
 }
 
 class ConcreteProductB1 implements AbstractProductB {
   @override
-  String usefulFunctionB() {
-    return "ConcreteProductB1";
+  void usefulFunctionB() {
+    print("ConcreteProductB1: usefulFunctionB");
   }
 
   @override
-  String anotherUsefulFunctionB(AbstractProductA collaborator) {
-    return "ConcreteProductB1${collaborator.usefulFunctionA()}";
+  void anotherUsefulFunctionB(AbstractProductA collaborator) {
+    collaborator.usefulFunctionA();
+    print("ConcreteProductB1: anotherUsefulFunctionB");
   }
 }
 
 class ConcreteProductB2 implements AbstractProductB {
   @override
-  String usefulFunctionB() {
-    return "ConcreteProductB2";
+  void usefulFunctionB() {
+    print("ConcreteProductB2: usefulFunctionB");
   }
 
   @override
-  String anotherUsefulFunctionB(AbstractProductA collaborator) {
-    return "ConcreteProductB2${collaborator.usefulFunctionA()}";
+  void anotherUsefulFunctionB(AbstractProductA collaborator) {
+    collaborator.usefulFunctionA();
+    print("ConcreteProductB2: anotherUsefulFunctionB");
   }
 }
 ```
@@ -307,14 +309,14 @@ class Singleton {
 
 ```dart
 class Target {
-  String request() {
-    return "Target";
+  void request() {
+    print("Target: request");
   }
 }
 
 class Adaptee {
-  String specificRequest() {
-    return "Adaptee";
+  void specificRequest() {
+    print("Adaptee");
   }
 }
 
@@ -324,8 +326,9 @@ class Adapter extends Target {
   Adapter(this._adaptee);
 
   @override
-  String request() {
-    return "Adapter${_adaptee.specificRequest()}";
+  void request() {
+    print("Adapter: request");
+    _adaptee.specificRequest();
   }
 }
 ```
@@ -338,8 +341,8 @@ class Abstraction {
 
   Abstraction(this._imp);
 
-  String operation() {
-    return _imp.operationImp();
+  void operation() {
+    _imp.operationImp();
   }
 }
 
@@ -347,26 +350,27 @@ class RefinedAbstraction extends Abstraction {
   RefinedAbstraction(super.implementation);
 
   @override
-  String operation() {
-    return "RefinedAbstraction${super.operation()}";
+  void operation() {
+    super.operation();
+    print("RefinedAbstraction: operation");
   }
 }
 
 abstract class Implementor {
-  String operationImp();
+  void operationImp();
 }
 
 class ConcreteImplementorA implements Implementor {
   @override
-  String operationImp() {
-    return "ConcreteImplementorA";
+  void operationImp() {
+    print("ConcreteImplementorA: operationImp");
   }
 }
 
 abstract class ConcreteImplementorB implements Implementor {
   @override
-  String operationImp() {
-    return "ConcreteImplementorB";
+  void operationImp() {
+    print("ConcreteImplementorB: operationImp");
   }
 }
 ```
