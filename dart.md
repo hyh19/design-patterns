@@ -779,20 +779,33 @@ class Caretaker {
 import 'dart:math';
 
 abstract class Subject {
-  List<Observer> observers = [];
+  late final List<Observer> _observers = [];
 
   void attach(Observer observer) {
-    observers.add(observer);
+    _observers.add(observer);
   }
 
   void detach(Observer observer) {
-    observers.remove(observer);
+    _observers.remove(observer);
   }
 
   void notify() {
-    for (var element in observers) {
+    for (var element in _observers) {
       element.update(this);
     }
+  }
+}
+
+class ConcreteSubject extends Subject {
+  int _state = 0;
+
+  int getState() {
+    return _state;
+  }
+
+  void doSomething() {
+    _state = Random().nextInt(100);
+    notify();
   }
 }
 
@@ -800,24 +813,13 @@ abstract class Observer {
   void update(Subject subject);
 }
 
-class ConcreteSubject extends Subject {
-  late int state;
-
-  int getState() {
-    return state;
-  }
-
-  void doSomething() {
-    state = Random().nextInt(100);
-    notify();
-  }
-}
-
 class ConcreteObserver implements Observer {
+  int _state = 0;
+
   @override
   void update(Subject subject) {
     if (subject is ConcreteSubject) {
-      print("ConcreteObserver: update ${subject.getState()}");
+      _state = subject.getState();
     }
   }
 }
