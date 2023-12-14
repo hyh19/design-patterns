@@ -859,22 +859,22 @@ class ConcreteStateB implements State {
 }
 
 class Context {
-  late State state;
+  late State _state;
 
   Context(State state) {
     transitionTo(state);
   }
 
   void transitionTo(State state) {
-    this.state = state;
+    _state = state;
   }
 
   void request1() {
-    state.handle1(this);
+    _state.handle1(this);
   }
 
   void request2() {
-    state.handle2(this);
+    _state.handle2(this);
   }
 }
 ```
@@ -883,27 +883,26 @@ class Context {
 
 ```dart
 abstract class Strategy {
-  void doAlgorithm(List<int> data);
+  void doAlgorithm(Context context);
 }
 
 class ConcreteStrategyA implements Strategy {
   @override
-  void doAlgorithm(List<int> data) {
-    data.sort();
+  void doAlgorithm(Context context) {
+    print("ConcreteStrategyA: doAlgorithm");
   }
 }
 
 class ConcreteStrategyB implements Strategy {
   @override
-  void doAlgorithm(List<int> data) {
-    data.sort((a, b) => b - a);
+  void doAlgorithm(Context context) {
+    print("ConcreteStrategyB: doAlgorithm");
   }
 }
 
 class Context {
   void doSomething(Strategy strategy) {
-    final data = <int>[1, 2, 3, 4, 5, 6];
-    strategy.doAlgorithm(data);
+    strategy.doAlgorithm(this);
   }
 }
 ```
