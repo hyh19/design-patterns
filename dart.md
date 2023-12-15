@@ -379,53 +379,39 @@ abstract class ConcreteImplementorB implements Implementor {
 
 ```dart
 abstract class Component {
-  Component? parent;
-
   void add(Component component) {}
 
   void remove(Component component) {}
 
-  bool isComposite() {
-    return false;
-  }
-
-  String operation();
+  void operation();
 }
 
 class Leaf extends Component {
   @override
-  String operation() {
-    return "Leaf: operation";
+  void operation() {
+    print("Leaf: operation");
   }
 }
 
 class Composite extends Component {
-  final List<Component> children = [];
+  late final List<Component> _children = [];
 
   @override
   void add(Component component) {
-    children.add(component);
-    component.parent = this;
+    _children.add(component);
   }
 
   @override
   void remove(Component component) {
-    children.remove(component);
-    component.parent = null;
+    _children.remove(component);
   }
 
   @override
-  bool isComposite() {
-    return true;
-  }
-
-  @override
-  String operation() {
-    final sb = StringBuffer();
-    for (final child in children) {
-      sb.write(child.operation());
+  void operation() {
+    print("Composite: operation");
+    for (final child in _children) {
+      child.operation();
     }
-    return sb.toString();
   }
 }
 ```
