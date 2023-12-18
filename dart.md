@@ -712,8 +712,6 @@ class ConcreteColleague2 extends Colleague {
 ### 备忘录模式
 
 ```dart
-import 'dart:math';
-
 class Memento {
   final int state;
 
@@ -727,16 +725,12 @@ class Originator {
 
   int get state => _state;
 
-  Memento save() {
+  Memento createMemento() {
     return Memento(_state);
   }
 
-  void restore(Memento memento) {
+  void setMemento(Memento memento) {
     _state = memento.state;
-  }
-
-  void doSomething() {
-    _state = Random().nextInt(100);
   }
 }
 
@@ -746,15 +740,15 @@ class Caretaker {
 
   Caretaker(this._originator);
 
-  void backup() {
-    _mementos.add(_originator.save());
+  void save() {
+    _mementos.add(_originator.createMemento());
   }
 
   void undo() {
     if (_mementos.isEmpty) {
       return;
     }
-    _originator.restore(_mementos.removeLast());
+    _originator.setMemento(_mementos.removeLast());
   }
 }
 ```
