@@ -35,14 +35,14 @@ protocol Creator {
 
     func factoryMethod() -> Product
 
-    func someOperation() -> String
+    func someOperation()
 }
 
 extension Creator {
 
-    func someOperation() -> String {
+    func someOperation() {
         let product = factoryMethod()
-        return product.operation()
+        product.operation()
     }
 }
 
@@ -62,20 +62,20 @@ class ConcreteCreator2: Creator {
 
 protocol Product {
 
-    func operation() -> String
+    func operation()
 }
 
 class ConcreteProduct1: Product {
 
-    func operation() -> String {
-        return "ConcreteProduct1"
+    func operation() {
+        print("ConcreteProduct1: operation")
     }
 }
 
 class ConcreteProduct2: Product {
 
-    func operation() -> String {
-        return "ConcreteProduct2"
+    func operation() {
+        print("ConcreteProduct2: operation")
     }
 }
 ```
@@ -114,49 +114,51 @@ class ConcreteFactory2: AbstractFactory {
 
 protocol AbstractProductA {
 
-    func usefulFunctionA() -> String
+    func usefulFunctionA()
 }
 
 class ConcreteProductA1: AbstractProductA {
 
-    func usefulFunctionA() -> String {
-        return "ConcreteProductA1"
+    func usefulFunctionA() {
+        print("ConcreteProductA1: usefulFunctionA")
     }
 }
 
 class ConcreteProductA2: AbstractProductA {
 
-    func usefulFunctionA() -> String {
-        return "ConcreteProductA2"
+    func usefulFunctionA() {
+        print("ConcreteProductA2: usefulFunctionA")
     }
 }
 
 protocol AbstractProductB {
 
-    func usefulFunctionB() -> String
+    func usefulFunctionB()
 
-    func anotherUsefulFunctionB(collaborator: AbstractProductA) -> String
+    func anotherUsefulFunctionB(collaborator: AbstractProductA)
 }
 
 class ConcreteProductB1: AbstractProductB {
 
-    func usefulFunctionB() -> String {
-        return "ConcreteProductB1"
+    func usefulFunctionB() {
+        print("ConcreteProductB1: usefulFunctionB")
     }
 
-    func anotherUsefulFunctionB(collaborator: AbstractProductA) -> String {
-        return "ConcreteProductB1" + collaborator.usefulFunctionA()
+    func anotherUsefulFunctionB(collaborator: AbstractProductA) {
+        collaborator.usefulFunctionA()
+        print("ConcreteProductB1: anotherUsefulFunctionB")
     }
 }
 
 class ConcreteProductB2: AbstractProductB {
 
-    func usefulFunctionB() -> String {
-        return "ConcreteProductB2"
+    func usefulFunctionB() {
+        print("ConcreteProductB2: usefulFunctionB")
     }
 
-    func anotherUsefulFunctionB(collaborator: AbstractProductA) -> String {
-        return "ConcreteProductB2" + collaborator.usefulFunctionA()
+    func anotherUsefulFunctionB(collaborator: AbstractProductA) {
+        collaborator.usefulFunctionA()
+        print("ConcreteProductB2: anotherUsefulFunctionB")
     }
 }
 ```
