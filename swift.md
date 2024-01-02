@@ -168,11 +168,11 @@ class ConcreteProductB2: AbstractProductB {
 ```swift
 protocol Builder {
 
-    func producePartA()
+    func buildPartA()
 
-    func producePartB()
+    func buildPartB()
 
-    func producePartC()
+    func buildPartC()
 }
 
 class ConcreteBuilder: Builder {
@@ -183,15 +183,15 @@ class ConcreteBuilder: Builder {
         reset()
     }
 
-    func producePartA() {
+    func buildPartA() {
         product.add(part: "PartA")
     }
 
-    func producePartB() {
+    func buildPartB() {
         product.add(part: "PartB")
     }
 
-    func producePartC() {
+    func buildPartC() {
         product.add(part: "PartC")
     }
 
@@ -218,13 +218,13 @@ class Product {
 class Director {
 
     static func buildMinimalViableProduct(_ builder: Builder) {
-        builder.producePartA()
+        builder.buildPartA()
     }
 
     static func buildFullFeaturedProduct(_ builder: Builder) {
-        builder.producePartA()
-        builder.producePartB()
-        builder.producePartC()
+        builder.buildPartA()
+        builder.buildPartB()
+        builder.buildPartC()
     }
 }
 ```
